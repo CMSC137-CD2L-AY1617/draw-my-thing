@@ -4,11 +4,15 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class Client extends Thread implements Chat, Writer, Reader {
+public class Client extends Thread implements Chat{
   String serverName;
   int port;
   String clientName;
   Socket client;
+
+  ClientWriter writer;
+  ClientReader reader;
+
   // String message;
 
   public Client(String[] args) throws IOException{
@@ -20,9 +24,7 @@ public class Client extends Thread implements Chat, Writer, Reader {
 
     this.clientName = args[2]; //get message from the third param
 
-    // this.message = args[3]; //get message from the fourth param
-
-    run();
+    // run();
   }
 
   public static void main(String [] args){
@@ -32,11 +34,11 @@ public class Client extends Thread implements Chat, Writer, Reader {
     }
     catch(IOException e){
       //e.printStackTrace();
-        System.out.println("Usage: java Client <server ip> <port no.> 'preferred nickname' <your message to the server>'");
+      System.out.println("Usage: java Client <server ip> <port no.> 'preferred nickname' <your message to the server>'");
     }
     catch(ArrayIndexOutOfBoundsException e){
-        // System.out.println("Usage: java Client <server ip> <port no.> 'preferred nickname' <your message to the server>'");
-        System.out.println("Usage: java Client <server ip> <port no.> 'preferred nickname'");
+      // System.out.println("Usage: java Client <server ip> <port no.> 'preferred nickname' <your message to the server>'");
+      System.out.println("Usage: java Client <server ip> <port no.> 'preferred nickname'");
 
     }
   }
@@ -44,35 +46,51 @@ public class Client extends Thread implements Chat, Writer, Reader {
   public void start(){
     Socket client = null;
 
-    try{
-      this.client = connect();
+    // while(true){
+      try{
+        this.client = connect();
 
-      OutputStream outToServer = this.client.getOutputStream();
-      DataOutputStream out = new DataOutputStream(outToServer);
-      out.writeUTF(this.clientName);
+        OutputStream outToServer = this.client.getOutputStream();
+        DataOutputStream out = new DataOutputStream(outToServer);
+        out.writeUTF(this.clientName);
 
-      // partially working
-      // while(true){
-      //   read();
-      // }
+        // check dupicate username
+        if(this.client.getInputStream().read()<0){
+          log(clientName+" already exists");
+          this.client.close();
+        }
 
+        writer = new ClientWriter(this.client, this.clientName);
+        reader = new ClientReader(this.client, this.clientName);
 
-      while(true){
-        // write();
-        read();
+        while(true){
+          writer.start();
+          reader.start();
+        }
+
+        // constantly receive msg from server
+        // while(true){
+        //   read();
+        // }
+
+        // constantly send msg to server
+        // while(true){
+        //   write();
+        // }
+
       }
+      catch(IOException e){
+        e.printStackTrace();
+        System.out.println("Cannot find (or disconnected from) Server");
+        // break;
+      }
+    // }
 
-      // /* Receive data from the ServerSocket */
-      // InputStream inFromServer = client.getInputStream();
-      // DataInputStream in = new DataInputStream(inFromServer);
-      // System.out.println("Server says " + in.readUTF());
-      // client.close();
-    }
-    catch(IOException e){
-      e.printStackTrace();
-      System.out.println("Cannot find (or disconnected from) Server");
+    // while(Server.isWaiting>0){
+    //   waitChatStart();
+    //   System.out.println(Server.isWaiting);
+    // }
 
-    }
   }
 
   public Socket connect(){
@@ -100,41 +118,44 @@ public class Client extends Thread implements Chat, Writer, Reader {
     System.out.println("[client log] : "+msg);
   }
 
-  public void write(){
-    try{
-      Scanner sc = new Scanner(System.in);
+  // public void write(){
+  //   try{
+  //     Scanner sc = new Scanner(System.in);
 
-      /* Send data to the ServerSocket */
-      OutputStream outToServer = this.client.getOutputStream();
-      DataOutputStream out = new DataOutputStream(outToServer);
+  //     /* Send data to the ServerSocket */
+  //     OutputStream outToServer = this.client.getOutputStream();
+  //     DataOutputStream out = new DataOutputStream(outToServer);
 
-      String msg  = sc.nextLine();
+  //     String msg  = sc.nextLine();
 
-      // log(msg);
+  //     log("flooding with: "+msg);
+  //     out.writeUTF(msg);
 
-      out.writeUTF(msg);
+  //   }
+  //   catch(IOException e){
+  //     e.printStackTrace();
+  //     System.out.println("Cannot find (or disconnected from) Server");
 
-    }
-    catch(IOException e){
-      e.printStackTrace();
-      System.out.println("Cannot find (or disconnected from) Server");
+  //   }
+  // }
 
-    }
-  }
+  // public void read(){
+  //   try{
+  //     /* Read data from the ClientSocket */
+  //     DataInputStream in = new DataInputStream(this.client.getInputStream());
+  //     String serverMsg = in.readUTF(); //readUTF waits for input
 
-  public void read(){
-    try{
-      /* Read data from the ClientSocket */
-      DataInputStream in = new DataInputStream(this.client.getInputStream());
-      String serverMsg = in.readUTF(); //readUTF waits for input
+  //     log(serverMsg);
 
-      log(serverMsg);
+  //   }
+  //   catch(IOException e){
+  //     e.printStackTrace();
+  //     System.out.println("Cannot find (or disconnected from) Server");
 
-    }
-    catch(IOException e){
-      e.printStackTrace();
-      System.out.println("Cannot find (or disconnected from) Server");
+  //   }
+  // }
 
-    }
+  public void waitChatStart(){
+    log(this.clientName+" is waiting");
   }
 }
