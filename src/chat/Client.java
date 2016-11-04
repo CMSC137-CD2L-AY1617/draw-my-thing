@@ -64,7 +64,10 @@ public class Client extends Thread implements Chat{
         reader = new ClientReader(this.client, this.clientName);
 
         while(true){
+          log("writing...");
           writer.start();
+
+          log("reading...");
           reader.start();
         }
 

@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 
 public class Server extends Thread implements Chat {
+  public static int playerCount = 0;
   public static int maxPlayers;
   private ServerSocket serverSocket;
   private int timeout_ms = 86400000;
@@ -37,7 +38,6 @@ public class Server extends Thread implements Chat {
   }
 
   public void run(){
-    int playerCount = 0;
 
     // wait for players to connect to chat
     while(playerCount < maxPlayers){
@@ -51,10 +51,9 @@ public class Server extends Thread implements Chat {
         DataInputStream in = new DataInputStream(server.getInputStream());
         String clientName = in.readUTF(); //readUTF waits for input
 
-        if(serverMap.get(clientName)!=null){
+        if(serverMap.containsKey(clientName)){
           log(clientName+" already exists");
           server.close();
-          playerCount -= 1;
           continue;
         }
 
@@ -64,6 +63,7 @@ public class Server extends Thread implements Chat {
 
 
         // broadcast to chat members of new chat member
+        // log(clientName+" joined the chat");
         // broadcast(clientName+" joined the chat");
 
         ServerReader sReader = new ServerReader(server, clientName);
@@ -74,12 +74,12 @@ public class Server extends Thread implements Chat {
         //   read();
         // }
 
-
         // server.close();
 
         // log("ended the connection to "+ server.getRemoteSocketAddress());
 
-        playerCount += 1;
+        playerCount = playerCount + 1;
+        log("playerCount: "+playerCount);
       }
       catch(SocketTimeoutException e){
         log("Socket timed out!");
@@ -124,7 +124,7 @@ public class Server extends Thread implements Chat {
       for(Iterator iter=serverMap.keySet().iterator(); iter.hasNext(); ){
 
         String name = (String)iter.next();
-        // log(name);
+        // log("send data to"+name);
 
         Socket client = (Socket)serverMap.get(name);
         // log(client.toString());
@@ -133,7 +133,11 @@ public class Server extends Thread implements Chat {
         OutputStream outToServer = client.getOutputStream();
         DataOutputStream out = new DataOutputStream(outToServer);
 
+        // log(out.toString());
+
         out.writeUTF(broadcastMessage);
+        log("sent '"+broadcastMessage+"' to "+name);
+        log("broadcasting: "+broadcastMessage);
       }
 
     }
