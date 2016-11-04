@@ -55,7 +55,7 @@ public class Client extends Thread implements Chat{
         out.writeUTF(this.clientName);
 
         // check dupicate username
-        if(this.client.getInputStream().read()<0){
+        if(this.client.getInputStream().read()<1){
           log(clientName+" already exists");
           this.client.close();
         }
