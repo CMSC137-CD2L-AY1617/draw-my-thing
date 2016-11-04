@@ -7,12 +7,12 @@ import java.util.*;
 public class ClientReader extends Thread implements Reader {
   Socket server;
   DataInputStream inputFromServer;
-  String name;
+  String clientName;
 
   ClientReader(Socket server, String name) throws IOException{
     this.server = server;
     this.inputFromServer = new DataInputStream(server.getInputStream());
-    this.name = name;
+    this.clientName = name;
   }
 
   public void start(){

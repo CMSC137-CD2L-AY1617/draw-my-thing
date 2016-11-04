@@ -16,7 +16,6 @@ public class ServerReader extends Thread implements Reader {
     this.client = client;
     this.clientName = name;
     this.inputFromClient = new DataInputStream(client.getInputStream());
-    // start();
   }
 
   public void start(){
@@ -30,13 +29,10 @@ public class ServerReader extends Thread implements Reader {
   public void read(){
     while(true){
       try{
-        // String client = "user3";
-        /* Read data from the ClientSocket */
-        // DataInputStream in = new DataInputStream(this.client.getInputStream());
         while(true){
-
           log("waiting for client msg");
-          String clientMsg = inputFromClient.readUTF(); //readUTF waits for input
+          //readUTF waits for input
+          String clientMsg = inputFromClient.readUTF();
 
           log(this.clientName+": "+clientMsg);
           broadcast(this.clientName+": "+clientMsg);
@@ -53,21 +49,13 @@ public class ServerReader extends Thread implements Reader {
 
   public void broadcast(String broadcastMessage){
     //send broadcast message
-    // Object[] clientNames = serverMap.keySet().toArray();
-
-    // System.out.println(serverMap.toString());
-    // System.exit(-1);
 
     try{
       for(Iterator iter=serverMap.keySet().iterator(); iter.hasNext(); ){
-      // for(int i=0; i<clientNames.length; i++){
 
         String name = (String)iter.next();
-        // String name = clientNames[i].toString();
-        // log(name);
 
         Socket client = (Socket)serverMap.get(name);
-        // log(client.toString());
 
         /* Send data to the ServerSocket */
         OutputStream outToServer = client.getOutputStream();

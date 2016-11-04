@@ -19,14 +19,6 @@ public class ClientWriter extends Thread implements Writer {
   }
 
   public void start(){
-    // try{
-    //   outputToServer.writeUTF(this.serverName+" joins");
-    // }
-    // catch(IOException e){
-    //   // e.printStackTrace();
-    //   System.out.println("Cannot find (or disconnected from) Server");
-    //   // break;
-    // }
     write();
   }
 
