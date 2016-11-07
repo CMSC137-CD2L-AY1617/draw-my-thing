@@ -12,8 +12,11 @@ public class ChatClient implements Runnable {
   Thread outThread;
   String msg = "";
 
-  JFrame frame = new JFrame("Draw My Thing Chat Module");
+  JFrame frame = new JFrame("Draw My Thing");
   JPanel chatPanel = new JPanel();
+  JPanel scorePanel = new JPanel();
+  JPanel gamePanel = new JPanel();
+
   JTextField textField = new JTextField(40);
   JTextArea messageArea = new JTextArea(8, 40);
   JScrollPane chatPane = new JScrollPane(messageArea);
@@ -29,7 +32,7 @@ public class ChatClient implements Runnable {
       updateChatPane("Connecting to " + serverName + " on port " + port);
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
-      updateChatPane("Just connected to " + this.client.getRemoteSocketAddress());
+      updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
 
       OutputStream outToServer = client.getOutputStream();
       DataOutputStream out = new DataOutputStream(outToServer);
@@ -45,9 +48,24 @@ public class ChatClient implements Runnable {
       System.out.println("Cannot find Server");
     }
 
+    // GUI
+
     messageArea.setEditable(false);
-    frame.getContentPane().add(textField, "South");
-    frame.getContentPane().add(chatPane, "Center");
+    // frame.getContentPane().add(textField, "South");
+    // frame.getContentPane().add(chatPane, "Center");
+    chatPanel.setLayout(new BorderLayout());
+    chatPanel.add(textField, BorderLayout.SOUTH);
+    chatPanel.add(chatPane, BorderLayout.CENTER);
+
+    gamePanel.setBackground(Color.YELLOW);
+    scorePanel.setBackground(Color.RED);
+
+    frame.getContentPane().add(chatPanel, "East");
+    frame.getContentPane().add(scorePanel, "West");
+    frame.getContentPane().add(gamePanel, "Center");
+
+    frame.setSize(new Dimension(720,480));
+    // frame.setResizable(false);
     frame.pack();
 
     // Add Listeners
