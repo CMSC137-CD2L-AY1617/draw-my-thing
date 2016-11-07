@@ -18,14 +18,15 @@ public class ChatServerListener implements Runnable {
     } catch(Exception e) {
 
     }
-      
+
   }
 
   public void run() {
     try {
       while(true){
         String message = inputStream.readUTF();
-      
+        System.out.println("receive "+message);
+
         // Broadcast each message sent by each client in the inputStream to each other clients on the client list.
         for(ChatServerListener listener: clientList){
           if(listener != this){
