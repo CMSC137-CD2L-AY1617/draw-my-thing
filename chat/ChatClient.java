@@ -6,33 +6,38 @@ import java.io.*;
 import java.util.*;
 
 public class ChatClient implements Runnable {
-  Socket client;
-  String name;
-  Thread inThread;
-  Thread outThread;
-  String msg = "";
+  private Socket client;
+  private String name;
+  private Thread inThread;
+  private Thread outThread;
+  private String msg = "";
 
-  JFrame frame = new JFrame("Draw My Thing");
-  JPanel chatPanel = new JPanel();
-  JPanel scorePanel = new JPanel();
-  JPanel gamePanel = new JPanel();
+  private JFrame frame = new JFrame("[Client] Draw My Thing");
+  private JPanel chatPanel = new JPanel();
+  private JPanel scorePanel = new JPanel();
+  private JPanel gamePanel = new JPanel();
 
-  JTextField textField = new JTextField(40);
-  JTextArea messageArea = new JTextArea(8, 40);
-  JScrollPane chatPane = new JScrollPane(messageArea);
+  private JTextField textField = new JTextField(40);
+  private JTextArea messageArea = new JTextArea(8, 40);
+  private JScrollPane chatPane = new JScrollPane(messageArea);
 
-  public ChatClient(String name, String serverName, int port){
+  // public ChatClient(String userName, String serverName, int port){
+  public ChatClient() {
 
     try{
 
-      this.name = name;
+      String serverName = getServerAddress();
+      int port = getServerPort();
+      String userName = getUserAlias();
+
+      this.name = userName;
       this.client = new Socket(serverName, port);
 
       log("Connecting to " + serverName + " on port " + port);
-      updateChatPane("Connecting to " + serverName + " on port " + port);
+      // updateChatPane("Connecting to " + serverName + " on port " + port);
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
-      updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
+      // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
 
       OutputStream outToServer = client.getOutputStream();
       DataOutputStream out = new DataOutputStream(outToServer);
@@ -44,12 +49,13 @@ public class ChatClient implements Runnable {
 
     } catch(UnknownHostException e) {
       System.out.println("Unknown Host.");
+      System.exit(-1);
     } catch(IOException e){
       System.out.println("Cannot find Server");
+      System.exit(-1);
     }
 
     // GUI
-
     messageArea.setEditable(false);
     // frame.getContentPane().add(textField, "South");
     // frame.getContentPane().add(chatPane, "Center");
@@ -84,13 +90,13 @@ public class ChatClient implements Runnable {
 
   }
 
-  public void setMessage(String msg){
+  private void setMessage(String msg){
 
     this.msg = msg;
 
   }
 
-  public String getMessage(){
+  private String getMessage(){
 
     return this.msg;
 
@@ -104,7 +110,54 @@ public class ChatClient implements Runnable {
 
   }
 
-  public void initializeThreads(){
+  private String getServerAddress() {//throws IOException {
+    String serverName = "";
+    while(serverName.isEmpty()){
+      serverName = JOptionPane.showInputDialog(
+        this.frame,
+        "Enter Server's IP Address:",
+        "Welcome to Draw My Thing",
+        JOptionPane.QUESTION_MESSAGE);
+    }
+
+    return serverName;
+  }
+
+  private int getServerPort() {//throws IOException {
+    int port = -1;
+
+    while(port < 0 || port < 1024){
+      port = Integer.parseInt(JOptionPane.showInputDialog(
+                              frame,
+                              "Enter Server's Port:",
+                              "Welcome to Draw My Thing",
+                              JOptionPane.QUESTION_MESSAGE)
+      );
+    }
+
+    return port;
+  }
+
+  private String getUserAlias() {//throws IOException {
+    String userName = "";
+    while(userName.isEmpty()){
+    // while(userName.isEmpty() && !(ChatServer.existingClientName(userName)<0) ){
+      userName = JOptionPane.showInputDialog(
+        frame,
+        "Choose your alias:",
+        "Alias selection",
+        JOptionPane.PLAIN_MESSAGE);
+
+      // ChatServer.addClientName(userName);
+      // ChatServer.printClientList();
+      // System.out.println(ChatServer.existingClientName(name));
+
+    }
+
+    return userName;
+  }
+
+  private void initializeThreads(){
 
     // For incoming messages
     this.inThread = new Thread(){
@@ -204,18 +257,23 @@ public class ChatClient implements Runnable {
 
     try {
 
-      String serverName = args[0];
-      int port = Integer.parseInt(args[1]);
-      String name = args[2];
+      // String serverName = args[0];
+      // int port = Integer.parseInt(args[1]);
+      // String name = args[2];
 
-      ChatClient chatClient = new ChatClient(name, serverName, port);
+      // ChatClient chatClient = new ChatClient(name, serverName, port);
+
+      ChatClient chatClient = new ChatClient();
+
       Thread t = new Thread(chatClient);
       t.start();
 
     } catch(ArrayIndexOutOfBoundsException e) {
-      System.out.println("Usage: java chatClientent <server ip> <port no.> <name>");
+      // System.out.println("Usage: java ChatClient <server ip> <port no.> <name>");
+      System.out.println("Usage: java ChatClient");
     } catch(Exception e){
-      System.out.println("Usage: java ChatClient <server ip> <port no.> <name>");
+      // System.out.println("Usage: java ChatClient <server ip> <port no.> <name>");
+      System.out.println("Usage: java ChatClient");
     }
 
   }
