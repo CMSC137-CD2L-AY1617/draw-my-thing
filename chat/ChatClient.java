@@ -1,13 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
-// import java.io.BufferedReader;
-// import java.io.IOException;
-// import java.io.InputStreamReader;
-// import java.io.PrintWriter;
-// import java.net.Socket;
-
 import javax.swing.*;
-
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -19,10 +12,7 @@ public class ChatClient implements Runnable {
   Thread outThread;
   String msg = "";
 
-  // BufferedReader in;
-  // PrintWriter out;
-
-  JFrame frame = new JFrame("Chatter");
+  JFrame frame = new JFrame("Draw My Thing Chat Module");
   JPanel chatPanel = new JPanel();
   JTextField textField = new JTextField(40);
   JTextArea messageArea = new JTextArea(8, 40);
@@ -43,8 +33,9 @@ public class ChatClient implements Runnable {
 
       OutputStream outToServer = client.getOutputStream();
       DataOutputStream out = new DataOutputStream(outToServer);
+
       out.writeUTF(name + " has joined the conversation.");
-      // updateChatPane(name + " has joined the conversation.");
+      updateChatPane("you have joined the conversation.");
 
       initializeThreads();
 
@@ -54,10 +45,6 @@ public class ChatClient implements Runnable {
       System.out.println("Cannot find Server");
     }
 
-    setMessage("");
-
-    // Layout GUI
-    // textField.setEditable(false);
     messageArea.setEditable(false);
     frame.getContentPane().add(textField, "South");
     frame.getContentPane().add(chatPane, "Center");
@@ -71,8 +58,6 @@ public class ChatClient implements Runnable {
       public void actionPerformed(ActionEvent e) {
         msg = textField.getText();
         setMessage(msg);
-        // log(msg);
-        // updateChatPane(name+": "+msg);
         textField.setText("");
       }
     });
@@ -83,15 +68,12 @@ public class ChatClient implements Runnable {
 
   public void setMessage(String msg){
 
-    // log("set "+msg);
     this.msg = msg;
-    // log("done set "+this.msg);
 
   }
 
   public String getMessage(){
 
-    // log("return "+this.msg);
     return this.msg;
 
   }
@@ -137,13 +119,6 @@ public class ChatClient implements Runnable {
     // For outgoing messages
     this.outThread = new Thread(){
 
-      Scanner sc = new Scanner(System.in);
-      // StringReader reader = new StringReader(textField.getText());
-
-      // BufferedReader reader = new BufferedReader(new InputStream(System.in));
-
-      // messageArea.read(reader, );
-
       public void run(){
 
         try{
@@ -156,15 +131,11 @@ public class ChatClient implements Runnable {
 
             log(name + ": ");
 
-            // String message = sc.nextLine();
             String message;
 
-            // System.out.println("andito 0");
-            // setMessage("1");
-
             while(true){
-              // System.out.println("andito 0.5");
-              // log(getMessage());
+              // without logging / any System.out.println statements
+              // messages do not get sent to the server
               log("waiting for new message to send");
               message=getMessage();
               if(message.compareTo("")!=0){
@@ -172,21 +143,6 @@ public class ChatClient implements Runnable {
                 break;
               }
             }
-
-            // setMessage("");
-            // System.out.println("andito 1");
-
-
-            // String message = getMessage();
-
-            // while(getMessage().compareTo("")==0){
-            //   System.out.println("======"+message2+"=======");
-            // }
-
-            // System.out.println(message2);
-            // updateChatPane("you: "+message2);
-
-            // System.out.println("========"+message+"========");
 
             if(message.compareTo("/paalam") == 0){
               out.writeUTF(name + " has ended conversation.");
@@ -197,24 +153,9 @@ public class ChatClient implements Runnable {
               break;
             }
 
-            // System.out.println("andito 2");
-
-
             out.writeUTF(name + ": " + message);
-            // updateChatPane(name + ": "+message);
             updateChatPane("you: "+message);
             log(name + ": "+message);
-
-            // System.out.println("andito 3");
-
-
-
-
-            // System.out.println("~~~~~~~~~~~~~~~~~~~~");
-            // out.writeUTF(name + ": " + message2);
-            // System.out.println(message2);
-            // System.out.println("~~~~~~~~~~~~~~~~~~~~");
-
 
           }
 
@@ -229,10 +170,9 @@ public class ChatClient implements Runnable {
 
   private void log(String msg){
 
-    System.out.print("\n[log]: "+msg);
+    System.out.print("\n[client log]: "+msg);
 
   }
-
 
   private void updateChatPane(String message){
 
@@ -241,7 +181,6 @@ public class ChatClient implements Runnable {
     messageArea.setText(contents);
 
   }
-
 
   public static void main(String [] args) {
 
@@ -265,5 +204,9 @@ public class ChatClient implements Runnable {
 
 }
 
-//sources: http://www.javatpoint.com/creating-thread
-//           https://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html
+/*
+ * sources:
+ * http://www.javatpoint.com/creating-thread
+ * https://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html
+ * http://cs.lmu.edu/~ray/notes/javanetexamples/#chat
+ */

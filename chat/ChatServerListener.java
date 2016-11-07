@@ -25,7 +25,7 @@ public class ChatServerListener implements Runnable {
     try {
       while(true){
         String message = inputStream.readUTF();
-        System.out.println("receive "+message);
+        System.out.println("[server listener log]: received "+message);
 
         // Broadcast each message sent by each client in the inputStream to each other clients on the client list.
         for(ChatServerListener listener: clientList){
