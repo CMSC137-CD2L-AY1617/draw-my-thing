@@ -14,18 +14,29 @@ public class ChatServer extends Thread {
   public ChatServer() throws IOException {
     int port = getServerPort();
     serverSocket = new ServerSocket(port);
+    System.out.println(serverSocket.getLocalSocketAddress());
+    System.out.println(serverSocket.getInetAddress());
   }
 
   private int getServerPort() {
     int port = -1;
+    String userInput = "";
 
-    while(port < 0 || port < 1024){
-      port = Integer.parseInt(JOptionPane.showInputDialog(
+    while(port < 0 || port < 1024 ){
+      // while(userInput == null){
+        userInput = JOptionPane.showInputDialog(
                               frame,
                               "Enter Server's Port:",
                               "Welcome to Draw My Thing",
-                              JOptionPane.QUESTION_MESSAGE)
-      );
+                              JOptionPane.QUESTION_MESSAGE);
+        // System.out.println(userInput);
+      // }
+
+      if(userInput == null){
+        continue;
+      }
+
+      port = Integer.parseInt(userInput);
     }
 
     return port;
@@ -39,16 +50,18 @@ public class ChatServer extends Thread {
 
   }
 
-  public static void addClientName(String name) {
+  synchronized public static void addClientName(String name) {
 
     if(!existingClientName(name)){
     // if(existingClientName(name)<0){
+      printClientList();
       userList.add(name);
+      printClientList();
     }
 
   }
 
-  public static boolean existingClientName(String clientName) {
+  synchronized public static boolean existingClientName(String clientName) {
   // public static int existingClientName(String clientName) {
 
     return userList.contains((Object)clientName);
@@ -62,7 +75,7 @@ public class ChatServer extends Thread {
         System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
 
         Socket client = serverSocket.accept();
-        // printClientList();
+        printClientList();
 
         // Set serverListener and add new client to clientList
         ChatServerListener serverListener = new ChatServerListener(client);

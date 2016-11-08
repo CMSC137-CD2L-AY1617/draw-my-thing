@@ -28,9 +28,7 @@ public class ChatClient implements Runnable {
 
       String serverName = getServerAddress();
       int port = getServerPort();
-      String userName = getUserAlias();
 
-      this.name = userName;
       this.client = new Socket(serverName, port);
 
       log("Connecting to " + serverName + " on port " + port);
@@ -38,6 +36,9 @@ public class ChatClient implements Runnable {
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
       // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
+
+      String userName = getUserAlias();
+      this.name = userName;
 
       OutputStream outToServer = client.getOutputStream();
       DataOutputStream out = new DataOutputStream(outToServer);
@@ -140,17 +141,17 @@ public class ChatClient implements Runnable {
 
   private String getUserAlias() {//throws IOException {
     String userName = "";
-    while(userName.isEmpty()){
-    // while(userName.isEmpty() && !(ChatServer.existingClientName(userName)<0) ){
+    // while(userName.isEmpty()){
+    while(userName.isEmpty() && !(ChatServer.existingClientName(userName)) ){
       userName = JOptionPane.showInputDialog(
         frame,
         "Choose your alias:",
         "Alias selection",
         JOptionPane.PLAIN_MESSAGE);
 
-      // ChatServer.addClientName(userName);
-      // ChatServer.printClientList();
-      // System.out.println(ChatServer.existingClientName(name));
+      ChatServer.addClientName(userName);
+      ChatServer.printClientList();
+      System.out.println(ChatServer.existingClientName(name));
 
     }
 
