@@ -33,11 +33,20 @@ public class ChatClient implements Runnable {
   private JPanel scorePanel = new JPanel();
   private JPanel gamePanel = new JPanel();
 
-  private JTextField textField = new JTextField(40);
-  private JTextArea messageArea = new JTextArea(8, 40);
-  private JScrollPane chatPane = new JScrollPane(messageArea);
+  private static int CHAT_ROWS = 8;
+  private static int CHAT_COLS = 24;
 
-  // public ChatClient(String userName, String serverName, int port){
+  private static final int WINDOW_HEIGHT = 600;
+  private static final int WINDOW_WIDTH = 1200;
+  private static final int WINDOW_PROPORTION = WINDOW_WIDTH/3;
+  private static final int SIDE_PANEL_SIZE = (int)(WINDOW_PROPORTION - WINDOW_PROPORTION*0.35);
+  private static final int GAME_AREA_SIZE = WINDOW_WIDTH - (2*SIDE_PANEL_SIZE);
+
+  private JTextField textArea = new JTextField(CHAT_COLS);
+  private JTextArea messageArea = new JTextArea(CHAT_ROWS, CHAT_COLS);
+  private JScrollPane chatArea = new JScrollPane(messageArea);
+  private DefaultCaret caret = (DefaultCaret)messageArea.getCaret();
+
   public ChatClient() {
 
     try{
@@ -48,10 +57,10 @@ public class ChatClient implements Runnable {
       this.client = new Socket(serverName, port);
 
       log("Connecting to " + serverName + " on port " + port);
-      // updateChatPane("Connecting to " + serverName + " on port " + port);
+      updateChatPane("Connecting to " + serverName + " on port " + port);
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
-      // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
+      updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
 
       String userName = getUserAlias();
       this.name = userName;
@@ -81,27 +90,27 @@ public class ChatClient implements Runnable {
     messageArea.setLineWrap(true);
     messageArea.setWrapStyleWord(true);
 
-    textArea.requestFocusInWindow();
 
     chatPanel.setLayout(new BorderLayout());
+    // chatPanel.add(new JButton("haha"), BorderLayout.SOUTH);
     chatPanel.add(textArea, BorderLayout.SOUTH);
     chatPanel.add(chatArea, BorderLayout.CENTER);
     chatPanel.setBackground(Color.BLUE);
-    chatPanel.setPreferredSize(new Dimension(270,600));
+    chatPanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
     gamePanel.setBackground(Color.YELLOW);
-    gamePanel.setPreferredSize(new Dimension(360,600));
+    gamePanel.setPreferredSize(new Dimension(GAME_AREA_SIZE,WINDOW_HEIGHT));
 
     scorePanel.setBackground(Color.RED);
-    scorePanel.setPreferredSize(new Dimension(240,600));
+    scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
     frame.getContentPane().add(chatPanel, "East");
     frame.getContentPane().add(scorePanel, "West");
     frame.getContentPane().add(gamePanel, "Center");
 
-    frame.setSize(new Dimension(1080,600));
+    frame.setSize(new Dimension(WINDOW_WIDTH,WINDOW_HEIGHT));
     frame.setResizable(false);
-    // frame.pack();
+    frame.pack();
 
     // Add Listeners
     textArea.addActionListener(new ActionListener() {
@@ -115,6 +124,7 @@ public class ChatClient implements Runnable {
       }
     });
 
+    this.frame.setLocationRelativeTo(null);
     this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
   }
@@ -136,6 +146,10 @@ public class ChatClient implements Runnable {
     this.inThread.start();
     this.outThread.start();
     this.frame.setVisible(true);
+
+
+    frame.requestFocus();
+    textArea.requestFocusInWindow();
 
   }
 
