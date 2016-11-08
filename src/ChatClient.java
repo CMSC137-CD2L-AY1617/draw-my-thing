@@ -73,33 +73,45 @@ public class ChatClient implements Runnable {
     }
 
     // GUI
+    caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+    chatPanel.setBorder(new SplitPaneBorder(Color.BLACK, Color.WHITE));
+
     messageArea.setEditable(false);
-    // frame.getContentPane().add(textField, "South");
-    // frame.getContentPane().add(chatPane, "Center");
+    messageArea.setLineWrap(true);
+    messageArea.setWrapStyleWord(true);
+
+    textArea.requestFocusInWindow();
+
     chatPanel.setLayout(new BorderLayout());
-    chatPanel.add(textField, BorderLayout.SOUTH);
-    chatPanel.add(chatPane, BorderLayout.CENTER);
+    chatPanel.add(textArea, BorderLayout.SOUTH);
+    chatPanel.add(chatArea, BorderLayout.CENTER);
+    chatPanel.setBackground(Color.BLUE);
+    chatPanel.setPreferredSize(new Dimension(270,600));
 
     gamePanel.setBackground(Color.YELLOW);
+    gamePanel.setPreferredSize(new Dimension(360,600));
+
     scorePanel.setBackground(Color.RED);
+    scorePanel.setPreferredSize(new Dimension(240,600));
 
     frame.getContentPane().add(chatPanel, "East");
     frame.getContentPane().add(scorePanel, "West");
     frame.getContentPane().add(gamePanel, "Center");
 
-    frame.setSize(new Dimension(720,480));
-    // frame.setResizable(false);
-    frame.pack();
+    frame.setSize(new Dimension(1080,600));
+    frame.setResizable(false);
+    // frame.pack();
 
     // Add Listeners
-    textField.addActionListener(new ActionListener() {
+    textArea.addActionListener(new ActionListener() {
       // listen for 'enter' key
       // set the msg variable to the message typed
       // clear text field for new message
       public void actionPerformed(ActionEvent e) {
-        msg = textField.getText();
+        msg = textArea.getText();
         setMessage(msg);
-        textField.setText("");
+        textArea.setText("");
       }
     });
 

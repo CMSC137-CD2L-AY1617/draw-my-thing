@@ -22,14 +22,11 @@ public class ChatServer extends Thread {
     String userInput = "";
 
     while(port < 0 || port < 1024 ){
-      // while(userInput == null){
         userInput = JOptionPane.showInputDialog(
                               frame,
-                              "Enter Server's Port:",
+                              "Enter chat server's port:",
                               "Welcome to Draw My Thing",
                               JOptionPane.QUESTION_MESSAGE);
-        // System.out.println(userInput);
-      // }
 
       if(userInput == null){
         continue;
@@ -69,7 +66,8 @@ public class ChatServer extends Thread {
   }
 
   public void run() {
-    while(true) { // continuously waits for clients to connect
+    // continuously waits for clients to connect
+    while(true) {
       try {
         System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
 
@@ -86,7 +84,6 @@ public class ChatServer extends Thread {
         System.out.println("Just connected to " + client.getRemoteSocketAddress());
 
       } catch(IOException e) {
-        // System.out.println("Usage: java ChatServer <port no.>");
         System.out.println("Usage: java ChatServer");
         break;
       }
@@ -97,7 +94,6 @@ public class ChatServer extends Thread {
     try {
        int port = Integer.parseInt(args[0]);
 
-       // Thread t = new ChatServer(port);
        Thread t = new ChatServer();
 
        t.start();
