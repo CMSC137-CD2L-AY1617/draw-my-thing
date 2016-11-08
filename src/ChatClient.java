@@ -3,8 +3,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -20,13 +21,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 import javax.swing.text.DefaultCaret;
-import javax.swing.plaf.basic.BasicBorders.*;
-import javax.swing.plaf.metal.MetalBorders.*;
 
-public class ChatClient implements Runnable {
+public class ChatClient implements Runnable, ColorPalette {
   private static int CHAT_ROWS = 8;
   private static int CHAT_COLS = 24;
+  private static int CHAT_BORDER_TOP = 0;
+  private static int CHAT_BORDER_LEFT = 10;
+  private static int CHAT_BORDER_BOTTOM = 0;
+  private static int CHAT_BORDER_RIGHT = 0;
 
   private static final int WINDOW_HEIGHT = 600;
   private static final int WINDOW_WIDTH = 1200;
@@ -70,8 +74,7 @@ public class ChatClient implements Runnable {
       log("Just connected to " + this.client.getRemoteSocketAddress());
       updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
 
-      String userName = getUserAlias();
-      this.name = userName;
+      this.name = getUserAlias();
 
       OutputStream outToServer = client.getOutputStream();
       out = new DataOutputStream(outToServer);
@@ -92,17 +95,20 @@ public class ChatClient implements Runnable {
     // GUI
     caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-    chatPanel.setBorder(new SplitPaneBorder(Color.BLACK, Color.WHITE));
+    toggleChat.setBackground(ColorPalette.CREAM);
+    toggleChat.setHorizontalAlignment(SwingConstants.TRAILING);
 
     messageArea.setEditable(false);
     messageArea.setLineWrap(true);
     messageArea.setWrapStyleWord(true);
+    messageArea.setBorder(BorderFactory.createEmptyBorder(CHAT_BORDER_TOP, CHAT_BORDER_LEFT, CHAT_BORDER_BOTTOM, CHAT_BORDER_RIGHT));
 
+    chatPanel.setBorder(BorderFactory.createEmptyBorder(CHAT_BORDER_TOP, CHAT_BORDER_LEFT, CHAT_BORDER_BOTTOM, CHAT_BORDER_RIGHT));
     chatPanel.setLayout(new BorderLayout());
     chatPanel.add(toggleChat, BorderLayout.NORTH);
     chatPanel.add(textArea, BorderLayout.SOUTH);
     chatPanel.add(chatArea, BorderLayout.CENTER);
-    chatPanel.setBackground(Color.BLUE);
+    chatPanel.setBackground(ColorPalette.GREY);
     chatPanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
     gamePanel.setBackground(Color.YELLOW);
@@ -134,6 +140,7 @@ public class ChatClient implements Runnable {
 
           chatState = ChatState.DISCONNECTED;
           disconnectChat();
+
         }
         else if(e.getStateChange()==ItemEvent.DESELECTED){
           toggleChat.setText("Disconnect");
@@ -365,8 +372,10 @@ public class ChatClient implements Runnable {
 
     } catch(ArrayIndexOutOfBoundsException e) {
       System.out.println("Usage: java ChatClient");
+      System.exit(-1);
     } catch(Exception e){
       System.out.println("Usage: java ChatClient");
+      System.exit(-1);
     }
 
   }
