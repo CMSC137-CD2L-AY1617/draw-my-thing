@@ -10,16 +10,25 @@ public class ChatServer extends Thread {
   private JFrame frame = new JFrame("[Server] Draw My Thing");
   private static ArrayList<String> userList = new ArrayList<String>();
 
-  public ChatServer(int port) throws IOException {
+  // public ChatServer(int port) throws IOException {
+  public ChatServer() throws IOException {
+    int port = getServerPort();
     serverSocket = new ServerSocket(port);
   }
 
-  private String setServerPort() {
-      return JOptionPane.showInputDialog(
-          frame,
-          "Enter port where server will listen",
-          "Set server's port",
-          JOptionPane.QUESTION_MESSAGE);
+  private int getServerPort() {
+    int port = -1;
+
+    while(port < 0 || port < 1024){
+      port = Integer.parseInt(JOptionPane.showInputDialog(
+                              frame,
+                              "Enter Server's Port:",
+                              "Welcome to Draw My Thing",
+                              JOptionPane.QUESTION_MESSAGE)
+      );
+    }
+
+    return port;
   }
 
   public static void printClientList() {
@@ -75,9 +84,10 @@ public class ChatServer extends Thread {
   public static void main(String [] args) {
     try {
        int port = Integer.parseInt(args[0]);
-       // int port = Integer.parseInt(setServerPort());
 
-       Thread t = new ChatServer(port);
+       // Thread t = new ChatServer(port);
+       Thread t = new ChatServer();
+
        t.start();
     } catch(IOException e) {
        System.out.println("Usage: java ChatServer <port no.>");

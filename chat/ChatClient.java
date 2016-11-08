@@ -221,6 +221,7 @@ public class ChatClient implements Runnable {
               log(name + " has ended conversation.");
               client.close();
               frame.setVisible(false);
+              System.exit(-1);
               break;
             }
 
