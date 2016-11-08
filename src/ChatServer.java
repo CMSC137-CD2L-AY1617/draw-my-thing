@@ -1,16 +1,15 @@
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class ChatServer extends Thread {
   private ServerSocket serverSocket;
   private JFrame frame = new JFrame("[Server] Draw My Thing");
   private static ArrayList<String> userList = new ArrayList<String>();
 
-  // public ChatServer(int port) throws IOException {
   public ChatServer() throws IOException {
     int port = getServerPort();
     serverSocket = new ServerSocket(port);

@@ -1,9 +1,25 @@
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.text.DefaultCaret;
+import javax.swing.plaf.basic.BasicBorders.*;
+import javax.swing.plaf.metal.MetalBorders.*;
 
 public class ChatClient implements Runnable {
   private Socket client;
@@ -284,7 +300,14 @@ public class ChatClient implements Runnable {
 
 /*
  * sources:
+ *
+ * threads
  * http://www.javatpoint.com/creating-thread
  * https://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html
+ *
+ * chat GUI
  * http://cs.lmu.edu/~ray/notes/javanetexamples/#chat
+ *
+ * auto scroll down of chat area
+ * http://stackoverflow.com/questions/2483572
  */
