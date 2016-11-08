@@ -3,6 +3,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -17,22 +19,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.text.DefaultCaret;
 import javax.swing.plaf.basic.BasicBorders.*;
 import javax.swing.plaf.metal.MetalBorders.*;
 
 public class ChatClient implements Runnable {
-  private Socket client;
-  private String name;
-  private Thread inThread;
-  private Thread outThread;
-  private String msg = "";
-
-  private JFrame frame = new JFrame("[Client] Draw My Thing");
-  private JPanel chatPanel = new JPanel();
-  private JPanel scorePanel = new JPanel();
-  private JPanel gamePanel = new JPanel();
-
   private static int CHAT_ROWS = 8;
   private static int CHAT_COLS = 24;
 
@@ -42,9 +34,24 @@ public class ChatClient implements Runnable {
   private static final int SIDE_PANEL_SIZE = (int)(WINDOW_PROPORTION - WINDOW_PROPORTION*0.35);
   private static final int GAME_AREA_SIZE = WINDOW_WIDTH - (2*SIDE_PANEL_SIZE);
 
+  private ChatState chatState = ChatState.DISCONNECTED;
+
+  private Socket client;
+  private String name;
+  private Thread inThread;
+  private Thread outThread;
+  private String msg = "";
+  private DataOutputStream out;
+
+  private JFrame frame = new JFrame("[Client] Draw My Thing");
+  private JPanel scorePanel = new JPanel();
+  private JPanel gamePanel = new JPanel();
+  private JPanel chatPanel = new JPanel();
+
   private JTextField textArea = new JTextField(CHAT_COLS);
   private JTextArea messageArea = new JTextArea(CHAT_ROWS, CHAT_COLS);
   private JScrollPane chatArea = new JScrollPane(messageArea);
+  private JToggleButton toggleChat = new JToggleButton("Disconnect");
   private DefaultCaret caret = (DefaultCaret)messageArea.getCaret();
 
   public ChatClient() {
@@ -54,10 +61,11 @@ public class ChatClient implements Runnable {
       String serverName = getServerAddress();
       int port = getServerPort();
 
-      this.client = new Socket(serverName, port);
-
       log("Connecting to " + serverName + " on port " + port);
       updateChatPane("Connecting to " + serverName + " on port " + port);
+
+      this.client = new Socket(serverName, port);
+      chatState = ChatState.CONNECTED;
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
       updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
@@ -66,10 +74,10 @@ public class ChatClient implements Runnable {
       this.name = userName;
 
       OutputStream outToServer = client.getOutputStream();
-      DataOutputStream out = new DataOutputStream(outToServer);
+      out = new DataOutputStream(outToServer);
 
-      out.writeUTF(name + " has joined the conversation.");
-      updateChatPane("you have joined the conversation.");
+      out.writeUTF(name + " joined the conversation.");
+      updateChatPane("You joined the conversation.");
 
       initializeThreads();
 
@@ -90,9 +98,8 @@ public class ChatClient implements Runnable {
     messageArea.setLineWrap(true);
     messageArea.setWrapStyleWord(true);
 
-
     chatPanel.setLayout(new BorderLayout());
-    // chatPanel.add(new JButton("haha"), BorderLayout.SOUTH);
+    chatPanel.add(toggleChat, BorderLayout.NORTH);
     chatPanel.add(textArea, BorderLayout.SOUTH);
     chatPanel.add(chatArea, BorderLayout.CENTER);
     chatPanel.setBackground(Color.BLUE);
@@ -112,7 +119,35 @@ public class ChatClient implements Runnable {
     frame.setResizable(false);
     frame.pack();
 
+    frame.setLocationRelativeTo(null);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    frame.requestFocus();
+    textArea.requestFocusInWindow();
+
     // Add Listeners
+    toggleChat.addItemListener(new ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        if(e.getStateChange()==ItemEvent.SELECTED){
+          toggleChat.setText("Connect");
+          textArea.setEditable(false);
+
+          chatState = ChatState.DISCONNECTED;
+          disconnectChat();
+        }
+        else if(e.getStateChange()==ItemEvent.DESELECTED){
+          toggleChat.setText("Disconnect");
+          textArea.setEditable(true);
+
+          frame.requestFocus();
+          textArea.requestFocusInWindow();
+
+          chatState = ChatState.CONNECTED;
+          connectChat();
+        }
+      }
+    });
+
     textArea.addActionListener(new ActionListener() {
       // listen for 'enter' key
       // set the msg variable to the message typed
@@ -123,9 +158,6 @@ public class ChatClient implements Runnable {
         textArea.setText("");
       }
     });
-
-    this.frame.setLocationRelativeTo(null);
-    this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
   }
 
@@ -146,10 +178,6 @@ public class ChatClient implements Runnable {
     this.inThread.start();
     this.outThread.start();
     this.frame.setVisible(true);
-
-
-    frame.requestFocus();
-    textArea.requestFocusInWindow();
 
   }
 
@@ -179,6 +207,7 @@ public class ChatClient implements Runnable {
     }
 
     return port;
+
   }
 
   private String getUserAlias() {//throws IOException {
@@ -198,6 +227,7 @@ public class ChatClient implements Runnable {
     }
 
     return userName;
+
   }
 
   private void initializeThreads(){
@@ -238,9 +268,6 @@ public class ChatClient implements Runnable {
         try{
 
           // Send data to the ServerSocket
-          OutputStream outToServer = client.getOutputStream();
-          DataOutputStream out = new DataOutputStream(outToServer);
-
           while(true){
 
             log(name + ": ");
@@ -259,12 +286,13 @@ public class ChatClient implements Runnable {
             }
 
             if(message.compareTo("/paalam") == 0){
-              out.writeUTF(name + " has ended conversation.");
-              updateChatPane(name + " has ended conversation.");
-              log(name + " has ended conversation.");
-              client.close();
-              frame.setVisible(false);
-              System.exit(-1);
+              toggleChat.doClick();
+
+              while(chatState == ChatState.DISCONNECTED){
+                log("waiting to reconnect chat");
+              }
+
+              connectChat();
               break;
             }
 
@@ -297,15 +325,38 @@ public class ChatClient implements Runnable {
 
   }
 
+  private void connectChat() {
+
+    try{
+      out.writeUTF(name + " resumed the conversation.");
+      updateChatPane("You resumed the conversation.");
+      log(name + " resumed the conversation.");
+    } catch (IOException e){
+      log("client name is missing");
+      System.exit(-1);
+    }
+
+
+  }
+
+  private void disconnectChat() {
+
+    try{
+      out.writeUTF(name + " left conversation.");
+      updateChatPane("You left the conversation.");
+      log(name + " left the conversation.");
+    } catch (IOException e){
+      log("client name is missing");
+      System.exit(-1);
+    }
+
+  }
+
+
+
   public static void main(String [] args) {
 
     try {
-
-      // String serverName = args[0];
-      // int port = Integer.parseInt(args[1]);
-      // String name = args[2];
-
-      // ChatClient chatClient = new ChatClient(name, serverName, port);
 
       ChatClient chatClient = new ChatClient();
 
@@ -313,10 +364,8 @@ public class ChatClient implements Runnable {
       t.start();
 
     } catch(ArrayIndexOutOfBoundsException e) {
-      // System.out.println("Usage: java ChatClient <server ip> <port no.> <name>");
       System.out.println("Usage: java ChatClient");
     } catch(Exception e){
-      // System.out.println("Usage: java ChatClient <server ip> <port no.> <name>");
       System.out.println("Usage: java ChatClient");
     }
 
@@ -336,4 +385,7 @@ public class ChatClient implements Runnable {
  *
  * auto scroll down of chat area
  * http://stackoverflow.com/questions/2483572
+ *
+ * jtogglebutton usage guide
+ * http://stackoverflow.com/questions/7524536
  */
