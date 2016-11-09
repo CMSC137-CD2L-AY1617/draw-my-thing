@@ -6,9 +6,9 @@ import java.util.ArrayList;
 public class ChatServerListener implements Runnable {
   public static ArrayList<ChatServerListener> clientList = new ArrayList<ChatServerListener>();
 
-  Socket socket;
-  DataInputStream inputStream;
-  DataOutputStream outputStream;
+  private Socket socket;
+  private DataInputStream inputStream;
+  private DataOutputStream outputStream;
 
   public ChatServerListener(Socket socket) {
     try {
@@ -22,11 +22,15 @@ public class ChatServerListener implements Runnable {
 
   }
 
+  private static void log(String str){
+    System.out.println("\n[server listener log]: received "+str);
+  }
+
   public void run() {
     try {
       while(true){
         String message = inputStream.readUTF();
-        System.out.println("[server listener log]: received "+message);
+        log(message);
 
         // Broadcast each message sent by each client in the inputStream to each other clients on the client list.
         for(ChatServerListener listener: clientList){

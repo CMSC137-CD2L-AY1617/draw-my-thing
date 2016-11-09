@@ -1,20 +1,16 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class ChatServer extends Thread {
   private ServerSocket serverSocket;
   private JFrame frame = new JFrame("[Server] Draw My Thing");
-  private static ArrayList<String> userList = new ArrayList<String>();
 
   public ChatServer() throws IOException {
     int port = getServerPort();
     serverSocket = new ServerSocket(port);
-    System.out.println(serverSocket.getLocalSocketAddress());
-    System.out.println(serverSocket.getInetAddress());
   }
 
   private int getServerPort() {
@@ -38,30 +34,9 @@ public class ChatServer extends Thread {
     return port;
   }
 
-  public static void printClientList() {
+  private void log(String msg){
 
-    for(int i=0; i<userList.size(); i++){
-      System.out.println(userList.get(i));
-    }
-
-  }
-
-  synchronized public static void addClientName(String name) {
-
-    if(!existingClientName(name)){
-    // if(existingClientName(name)<0){
-      printClientList();
-      userList.add(name);
-      printClientList();
-    }
-
-  }
-
-  synchronized public static boolean existingClientName(String clientName) {
-  // public static int existingClientName(String clientName) {
-
-    return userList.contains((Object)clientName);
-    // return userList.indexOf((Object)(clientName));
+    System.out.print("\n[server log]: "+msg);
 
   }
 
@@ -69,10 +44,9 @@ public class ChatServer extends Thread {
     // continuously waits for clients to connect
     while(true) {
       try {
-        System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
+        log("Waiting for client on port " + serverSocket.getLocalPort() + "...");
 
         Socket client = serverSocket.accept();
-        printClientList();
 
         // Set serverListener and add new client to clientList
         ChatServerListener serverListener = new ChatServerListener(client);
@@ -81,7 +55,7 @@ public class ChatServer extends Thread {
         Thread t = new Thread(serverListener);
         t.start();
 
-        System.out.println("Just connected to " + client.getRemoteSocketAddress());
+        log("Just connected to " + client.getRemoteSocketAddress());
 
       } catch(IOException e) {
         System.out.println("Usage: java ChatServer");
@@ -92,16 +66,12 @@ public class ChatServer extends Thread {
 
   public static void main(String [] args) {
     try {
-       int port = Integer.parseInt(args[0]);
-
        Thread t = new ChatServer();
-
        t.start();
     } catch(IOException e) {
-       System.out.println("Usage: java ChatServer <port no.>");
+       System.out.println("Usage: java ChatServer");
     } catch(ArrayIndexOutOfBoundsException e) {
-       System.out.println("Usage: java ChatServer <port no.> ");
+       System.out.println("Usage: java ChatServer");
     }
   }
 }
-

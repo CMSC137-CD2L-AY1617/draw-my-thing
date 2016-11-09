@@ -39,6 +39,7 @@ public class ChatClient implements Runnable, ColorPalette {
   private static final int GAME_AREA_SIZE = WINDOW_WIDTH - (2*SIDE_PANEL_SIZE);
 
   private ChatState chatState = ChatState.DISCONNECTED;
+  private PlayerState playerState = PlayerState.READY;
 
   private Socket client;
   private String name;
@@ -74,10 +75,10 @@ public class ChatClient implements Runnable, ColorPalette {
       log("Just connected to " + this.client.getRemoteSocketAddress());
       updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
 
-      this.name = getUserAlias();
-
       OutputStream outToServer = client.getOutputStream();
       out = new DataOutputStream(outToServer);
+
+      this.name = getUserAlias();
 
       out.writeUTF(name + " joined the conversation.");
       updateChatPane("You joined the conversation.");
@@ -111,10 +112,10 @@ public class ChatClient implements Runnable, ColorPalette {
     chatPanel.setBackground(ColorPalette.GREY);
     chatPanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
-    gamePanel.setBackground(Color.YELLOW);
+    gamePanel.setBackground(ColorPalette.PEACH);
     gamePanel.setPreferredSize(new Dimension(GAME_AREA_SIZE,WINDOW_HEIGHT));
 
-    scorePanel.setBackground(Color.RED);
+    scorePanel.setBackground(ColorPalette.GREEN);
     scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
     frame.getContentPane().add(chatPanel, "East");
@@ -219,18 +220,12 @@ public class ChatClient implements Runnable, ColorPalette {
 
   private String getUserAlias() {//throws IOException {
     String userName = "";
-    // while(userName.isEmpty()){
-    while(userName.isEmpty() && !(ChatServer.existingClientName(userName)) ){
+    while(userName.isEmpty()){
       userName = JOptionPane.showInputDialog(
         frame,
         "Choose your alias:",
         "Alias selection",
         JOptionPane.PLAIN_MESSAGE);
-
-      ChatServer.addClientName(userName);
-      ChatServer.printClientList();
-      System.out.println(ChatServer.existingClientName(name));
-
     }
 
     return userName;
@@ -304,7 +299,7 @@ public class ChatClient implements Runnable, ColorPalette {
             }
 
             out.writeUTF(name + ": " + message);
-            updateChatPane("you: "+message);
+            updateChatPane("You: "+message);
             log(name + ": "+message);
 
           }
@@ -358,8 +353,6 @@ public class ChatClient implements Runnable, ColorPalette {
     }
 
   }
-
-
 
   public static void main(String [] args) {
 
