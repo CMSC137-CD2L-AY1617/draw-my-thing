@@ -1,4 +1,5 @@
 public enum PlayerState{
-  DRAWING,  // draws the word for pplayers to guess
-  GUESSING; // rest of the players
+  READY,      // client is waiting for other clients before game starts
+  DRAWING,    // draws the word for pplayers to guess
+  GUESSING;   // rest of the players
 }
