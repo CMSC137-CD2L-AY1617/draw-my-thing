@@ -23,5 +23,9 @@ public interface ColorPalette {
 }
 
 /*
+ * drawings on a wall
  * http://colourlovers.com/3082487/drawings_on_a_wall
+ *
+ * minimalistic cooking
+ * http://www.colourlovers.com/palette/766079/minimalistic_cooking
  */

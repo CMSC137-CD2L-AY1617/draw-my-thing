@@ -50,7 +50,7 @@ public class ChatClient implements Runnable, ColorPalette {
 
   private JFrame frame = new JFrame("[Client] Draw My Thing");
   private JPanel scorePanel = new JPanel();
-  private JPanel gamePanel = new JPanel();
+  private JPanel gamePanel = new GamePanel();
   private JPanel chatPanel = new JPanel();
 
   private JTextField textArea = new JTextField(CHAT_COLS);

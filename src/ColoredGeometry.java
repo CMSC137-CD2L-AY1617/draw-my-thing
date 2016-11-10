@@ -9,18 +9,24 @@ public class ColoredGeometry {
 
   private Shape shape;
   private Color color;
+  private Geometry type;
 
-  ColoredGeometry(Shape s, Color c){
+  ColoredGeometry(Shape s, Color c, Geometry geom){
     shape = s;
     color = c;
+    type = geom;
   }
 
-  public Shape getKey(){
+  public Shape getShape(){
     return shape;
   }
 
-  public Color getValue(){
+  public Color getColor(){
     return color;
+  }
+
+  public Geometry getGeometry(){
+    return type;
   }
 
 }
