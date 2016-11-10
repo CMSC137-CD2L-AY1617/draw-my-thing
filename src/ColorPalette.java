@@ -2,30 +2,15 @@ import java.awt.Color;
 
 public interface ColorPalette {
 
-  // her love is a bird
-  public Color GREEN = new Color(138,190,163);
-
-  // her eyes
-  public Color BROWN = new Color(75,51,35);
-
-  // ghost rider
-  public Color MAROON = new Color(172,70,43);
-
-  // mandarin facets
-  public Color PEACH = new Color(252,148,105);
-
-  // vulcan violence
-  public Color CREAM = new Color(254,231,189);
-
-  // custom
-  public Color GREY = new Color(188,198,204);
+  public Color EGG_CREAM = new Color(252, 225, 169);
+  public Color CREAM_CHEESE = new Color(245, 250, 230);
+  public Color CHEESE_GREASE = new Color(248, 169, 16);
+  public Color GREASE_POINTS = new Color(134, 130, 8);
+  public Color POINTS_OF_LIGHT= new Color(222, 219, 124);
 
 }
 
 /*
- * drawings on a wall
- * http://colourlovers.com/3082487/drawings_on_a_wall
- *
  * minimalistic cooking
  * http://www.colourlovers.com/palette/766079/minimalistic_cooking
  */

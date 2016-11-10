@@ -74,5 +74,6 @@ public class GamePanel extends JPanel implements ColorPalette, ChangeListener {
  * http://www.java2s.com/Tutorial/Java/0240__Swing/RemovingaColorChooserPanelfromaJColorChooserDialog.htm
  *
  * on removing the preview panel of jcolorchooser
+ * https://docs.oracle.com/javase/tutorial/uiswing/components/colorchooser.html#previewpanel
  * http://www.java2s.com/Tutorial/Java/0240__Swing/RemovingthePreviewPanelfromaJColorChooserDialog.htm
  */

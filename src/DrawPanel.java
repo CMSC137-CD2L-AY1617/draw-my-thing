@@ -2,7 +2,6 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,14 +14,12 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Map.Entry;
-import java.util.Map;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -82,7 +79,7 @@ public class DrawPanel extends JPanel implements ActionListener {
     // Set default
     // pencilButton.setSelected(true);
 
-    JPanel radioPanel = new JPanel(new GridLayout(3,2));
+    JPanel radioPanel = new JPanel(new FlowLayout());
 
     radioPanel.add(lineButton);
     radioPanel.add(ovalButton);
@@ -92,7 +89,7 @@ public class DrawPanel extends JPanel implements ActionListener {
     radioPanel.add(largeBrushButton);
 
     this.setLayout(new BorderLayout());
-    this.add(radioPanel, BorderLayout.NORTH);
+    this.add(radioPanel, BorderLayout.SOUTH);
     this.add(new DrawSurface(), BorderLayout.CENTER);
 
   }
@@ -311,12 +308,13 @@ public class DrawPanel extends JPanel implements ActionListener {
  * further modified to include freehand lines / brushes
  * http://www.java2s.com/Tutorial/Java/0261__2D-Graphics/Mousedraganddraw.htm
  *
- * guide on drawing freehand lines on mousedrag [Able Johnson's]
- * http://stackoverflow.com/questions/6039831/freehand-drawline-using-mouse-events
+ * guide on drawing freehand lines on mousedrag
+ * http://stackoverflow.com/questions/6039831/freehand-drawline-using-mouse-events/13709256#13709256
  *
  * java general path usage example, to be used with the freehand lines tutorial
  * https://kodejava.org/how-do-i-draw-a-generalpath-in-java-2d/
  *
  * accessing enum name
  * https://dzone.com/articles/enum-tricks-dynamic-enums
+ * http://stackoverflow.com/questions/6667243/using-enum-values-as-string-literals/6667365#6667365
  */

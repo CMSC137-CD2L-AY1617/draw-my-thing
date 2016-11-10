@@ -32,6 +32,16 @@ public class ChatClient implements Runnable, ColorPalette {
   private static int CHAT_BORDER_BOTTOM = 0;
   private static int CHAT_BORDER_RIGHT = 0;
 
+  private static int GAME_BORDER_TOP = 0;
+  private static int GAME_BORDER_LEFT = 10;
+  private static int GAME_BORDER_BOTTOM = 0;
+  private static int GAME_BORDER_RIGHT = 10;
+
+  private static int SCORE_BORDER_TOP = 0;
+  private static int SCORE_BORDER_LEFT = 0;
+  private static int SCORE_BORDER_BOTTOM = 0;
+  private static int SCORE_BORDER_RIGHT = 10;
+
   private static final int WINDOW_HEIGHT = 600;
   private static final int WINDOW_WIDTH = 1200;
   private static final int WINDOW_PROPORTION = WINDOW_WIDTH/3;
@@ -96,7 +106,7 @@ public class ChatClient implements Runnable, ColorPalette {
     // GUI
     caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-    toggleChat.setBackground(ColorPalette.CREAM);
+    toggleChat.setBackground(ColorPalette.CREAM_CHEESE);
     toggleChat.setHorizontalAlignment(SwingConstants.TRAILING);
 
     messageArea.setEditable(false);
@@ -109,13 +119,15 @@ public class ChatClient implements Runnable, ColorPalette {
     chatPanel.add(toggleChat, BorderLayout.NORTH);
     chatPanel.add(textArea, BorderLayout.SOUTH);
     chatPanel.add(chatArea, BorderLayout.CENTER);
-    chatPanel.setBackground(ColorPalette.GREY);
+    chatPanel.setBackground(ColorPalette.EGG_CREAM);
     chatPanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
-    gamePanel.setBackground(ColorPalette.PEACH);
+    gamePanel.setBackground(ColorPalette.CHEESE_GREASE);
     gamePanel.setPreferredSize(new Dimension(GAME_AREA_SIZE,WINDOW_HEIGHT));
+    gamePanel.setBorder(BorderFactory.createEmptyBorder(GAME_BORDER_TOP, GAME_BORDER_LEFT, GAME_BORDER_BOTTOM, GAME_BORDER_RIGHT));
 
-    scorePanel.setBackground(ColorPalette.GREEN);
+    scorePanel.setBackground(ColorPalette.CREAM_CHEESE);
+    scorePanel.setBorder(BorderFactory.createEmptyBorder(SCORE_BORDER_TOP, SCORE_BORDER_LEFT, SCORE_BORDER_BOTTOM, SCORE_BORDER_RIGHT));
     scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
     frame.getContentPane().add(chatPanel, "East");
