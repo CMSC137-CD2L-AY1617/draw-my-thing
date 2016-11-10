@@ -40,6 +40,8 @@ public class DrawPanel extends JPanel implements ActionListener {
   private static final BasicStroke MEDIUM_BRUSH_STROKE = new BasicStroke(MEDIUM_BRUSH_SIZE, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
   private static final BasicStroke DEFAULT_STROKE = new BasicStroke(BasicStroke.CAP_SQUARE);
 
+  private DrawSurface surface = new DrawSurface();
+
   public void setSelectedColor(Color color){
 
     selectedColor = color;
@@ -62,6 +64,7 @@ public class DrawPanel extends JPanel implements ActionListener {
     JRadioButton pencilButton = new JRadioButton("Pencil", true);
     JRadioButton mediumBrushButton = new JRadioButton("Medium Brush");
     JRadioButton largeBrushButton = new JRadioButton("Large Brush");
+    JRadioButton eraseButton = new JRadioButton("Clear");
 
     tools.add(lineButton);
     tools.add(ovalButton);
@@ -69,6 +72,7 @@ public class DrawPanel extends JPanel implements ActionListener {
     tools.add(pencilButton);
     tools.add(mediumBrushButton);
     tools.add(largeBrushButton);
+    tools.add(eraseButton);
 
     lineButton.addActionListener(this);
     ovalButton.addActionListener(this);
@@ -76,6 +80,7 @@ public class DrawPanel extends JPanel implements ActionListener {
     pencilButton.addActionListener(this);
     mediumBrushButton.addActionListener(this);
     largeBrushButton.addActionListener(this);
+    eraseButton.addActionListener(this);
 
     JPanel toolPanel = new JPanel(new FlowLayout());
 
@@ -91,16 +96,23 @@ public class DrawPanel extends JPanel implements ActionListener {
     toolPanel.add(pencilButton);
     toolPanel.add(mediumBrushButton);
     toolPanel.add(largeBrushButton);
+    toolPanel.add(eraseButton);
 
     this.setLayout(new BorderLayout());
     this.add(toolPanel, BorderLayout.SOUTH);
-    this.add(new DrawSurface(), BorderLayout.CENTER);
+    this.add(surface, BorderLayout.CENTER);
 
   }
 
   public void actionPerformed(ActionEvent ae) {
 
     String selected = ae.getActionCommand().toString();
+
+    if(selected.compareTo("Clear")==0){
+      surface.clear();
+      return;
+    }
+
     selected = selected.toUpperCase();
     selected = selected.replace(" ", "_");
 
@@ -110,10 +122,6 @@ public class DrawPanel extends JPanel implements ActionListener {
 
   private class DrawSurface extends JComponent {
     LinkedList<ColoredGeometry> all_shapes = new LinkedList<ColoredGeometry>();
-    LinkedList<ColoredGeometry> shapes = new LinkedList<ColoredGeometry>();
-    LinkedList<ColoredGeometry> lines = new LinkedList<ColoredGeometry>();
-    LinkedList<ColoredGeometry> mediumBrushes = new LinkedList<ColoredGeometry>();
-    LinkedList<ColoredGeometry> largeBrushes = new LinkedList<ColoredGeometry>();
 
     Point startDrag, endDrag;
 
@@ -193,6 +201,14 @@ public class DrawPanel extends JPanel implements ActionListener {
       }
 
       return g2;
+    }
+
+    public void clear(){
+      pointList.clear();
+      all_shapes.clear();
+      startDrag = null;
+      endDrag = null;
+      repaint();
     }
 
     // draw grid
