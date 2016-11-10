@@ -1,5 +1,5 @@
 /*
- * wrapper class representing a previously drawn line or shape and its respective color
+ * wrapper class representing a previously drawn line or shape, its respective color, and its type
  */
 
 import java.awt.Color;

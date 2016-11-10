@@ -1,35 +1,16 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.colorchooser.AbstractColorChooserPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.JColorChooser;
 import javax.swing.JPanel;
-import java.util.ArrayList;
-import java.awt.Shape;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.Graphics2D;
-import java.awt.Graphics;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.colorchooser.*;
-
-public class GamePanel extends JPanel implements ColorPalette, ChangeListener {
+public class GamePanel extends JPanel implements ChangeListener {
 
   private JColorChooser colorChooser;
   private DrawPanel drawPanel = new DrawPanel();
   private GameState gameState = GameState.WAITING;
-
-  // private JFrame frame = new JFrame("[Client] Draw My Thing");
 
   public GamePanel(){
 

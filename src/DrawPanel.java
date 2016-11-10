@@ -8,21 +8,22 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.FlowLayout;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
-import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Enumeration;
+import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -54,7 +55,7 @@ public class DrawPanel extends JPanel implements ActionListener {
   public DrawPanel() {
 
     // add tools as a group
-    ButtonGroup toolBox = new ButtonGroup();
+    ButtonGroup tools = new ButtonGroup();
     JRadioButton lineButton = new JRadioButton("Line");
     JRadioButton ovalButton = new JRadioButton("Ellipse");
     JRadioButton rectangleButton = new JRadioButton("Rectangle");
@@ -62,12 +63,12 @@ public class DrawPanel extends JPanel implements ActionListener {
     JRadioButton mediumBrushButton = new JRadioButton("Medium Brush");
     JRadioButton largeBrushButton = new JRadioButton("Large Brush");
 
-    toolBox.add(lineButton);
-    toolBox.add(ovalButton);
-    toolBox.add(rectangleButton);
-    toolBox.add(pencilButton);
-    toolBox.add(mediumBrushButton);
-    toolBox.add(largeBrushButton);
+    tools.add(lineButton);
+    tools.add(ovalButton);
+    tools.add(rectangleButton);
+    tools.add(pencilButton);
+    tools.add(mediumBrushButton);
+    tools.add(largeBrushButton);
 
     lineButton.addActionListener(this);
     ovalButton.addActionListener(this);
@@ -76,20 +77,23 @@ public class DrawPanel extends JPanel implements ActionListener {
     mediumBrushButton.addActionListener(this);
     largeBrushButton.addActionListener(this);
 
-    // Set default
-    // pencilButton.setSelected(true);
+    JPanel toolPanel = new JPanel(new FlowLayout());
 
-    JPanel radioPanel = new JPanel(new FlowLayout());
+    for (Enumeration<AbstractButton> e = tools.getElements(); e.hasMoreElements();){
 
-    radioPanel.add(lineButton);
-    radioPanel.add(ovalButton);
-    radioPanel.add(rectangleButton);
-    radioPanel.add(pencilButton);
-    radioPanel.add(mediumBrushButton);
-    radioPanel.add(largeBrushButton);
+      e.nextElement().setBackground(Palette.POINTS_OF_LIGHT);
+    }
+
+    toolPanel.setBackground(Palette.POINTS_OF_LIGHT);
+    toolPanel.add(lineButton);
+    toolPanel.add(ovalButton);
+    toolPanel.add(rectangleButton);
+    toolPanel.add(pencilButton);
+    toolPanel.add(mediumBrushButton);
+    toolPanel.add(largeBrushButton);
 
     this.setLayout(new BorderLayout());
-    this.add(radioPanel, BorderLayout.SOUTH);
+    this.add(toolPanel, BorderLayout.SOUTH);
     this.add(new DrawSurface(), BorderLayout.CENTER);
 
   }
@@ -120,10 +124,6 @@ public class DrawPanel extends JPanel implements ActionListener {
           startDrag = new Point(e.getX(), e.getY());
           endDrag = startDrag;
 
-          // if(isFreeDraw()){
-          //   pointList.add(startDrag);
-          // }
-
           if(isFreeDraw()){
             pointList.add(startDrag);
           }
@@ -146,24 +146,6 @@ public class DrawPanel extends JPanel implements ActionListener {
           else if(isFreeDraw()){
             r = makeFreeLine(pointList);
           }
-
-          // if(!isFreeDraw()){
-          //   shapes.add(new ColoredGeometry(r, getSelectedColor()));
-          // }
-          // else{
-          //   if(selectedTool == Geometry.PENCIL){
-          //     // lines.add(r);
-          //     // lines.put(r,getSelectedColor());
-          //     lines.add(new ColoredGeometry(r, getSelectedColor()));
-          //   }
-          //   else if(selectedTool == Geometry.MEDIUM_BRUSH){
-          //     mediumBrushes.add(new ColoredGeometry(r, getSelectedColor()));
-          //   }
-          //   else if(selectedTool == Geometry.LARGE_BRUSH){
-          //     largeBrushes.add(new ColoredGeometry(r, getSelectedColor()));
-          //   }
-          //   pointList.clear();
-          // }
 
           all_shapes.add(new ColoredGeometry(r, getSelectedColor(), selectedTool));
 

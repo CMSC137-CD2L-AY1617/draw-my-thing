@@ -1,6 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -14,7 +13,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,32 +22,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.text.DefaultCaret;
 
-public class ChatClient implements Runnable, ColorPalette {
-  private static int CHAT_ROWS = 8;
-  private static int CHAT_COLS = 24;
-  private static int CHAT_BORDER_TOP = 0;
-  private static int CHAT_BORDER_LEFT = 10;
-  private static int CHAT_BORDER_BOTTOM = 0;
-  private static int CHAT_BORDER_RIGHT = 0;
-
-  private static int GAME_BORDER_TOP = 0;
-  private static int GAME_BORDER_LEFT = 10;
-  private static int GAME_BORDER_BOTTOM = 0;
-  private static int GAME_BORDER_RIGHT = 10;
-
-  private static int SCORE_BORDER_TOP = 0;
-  private static int SCORE_BORDER_LEFT = 0;
-  private static int SCORE_BORDER_BOTTOM = 0;
-  private static int SCORE_BORDER_RIGHT = 10;
-
-  private static final int WINDOW_HEIGHT = 600;
-  private static final int WINDOW_WIDTH = 1200;
-  private static final int WINDOW_PROPORTION = WINDOW_WIDTH/3;
-  private static final int SIDE_PANEL_SIZE = (int)(WINDOW_PROPORTION - WINDOW_PROPORTION*0.35);
-  private static final int GAME_AREA_SIZE = WINDOW_WIDTH - (2*SIDE_PANEL_SIZE);
-
-  private ChatState chatState = ChatState.DISCONNECTED;
-  private PlayerState playerState = PlayerState.READY;
+public class ChatClient extends JPanel implements Runnable {
 
   private Socket client;
   private String name;
@@ -58,10 +31,15 @@ public class ChatClient implements Runnable, ColorPalette {
   private String msg = "";
   private DataOutputStream out;
 
-  private JFrame frame = new JFrame("[Client] Draw My Thing");
-  private JPanel scorePanel = new JPanel();
-  private JPanel gamePanel = new GamePanel();
-  private JPanel chatPanel = new JPanel();
+  private static int CHAT_ROWS = 8;
+  private static int CHAT_COLS = 24;
+
+  private static int MESSAGE_AREA_BORDER_TOP = 0;
+  private static int MESSAGE_AREA_BORDER_LEFT = 10;
+  private static int MESSAGE_AREA_BORDER_BOTTOM = 0;
+  private static int MESSAGE_AREA_BORDER_RIGHT = 0;
+
+  private ChatState chatState = ChatState.DISCONNECTED;
 
   private JTextField textArea = new JTextField(CHAT_COLS);
   private JTextArea messageArea = new JTextArea(CHAT_ROWS, CHAT_COLS);
@@ -106,43 +84,18 @@ public class ChatClient implements Runnable, ColorPalette {
     // GUI
     caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-    toggleChat.setBackground(ColorPalette.CREAM_CHEESE);
+    toggleChat.setBackground(Palette.CREAM_CHEESE);
     toggleChat.setHorizontalAlignment(SwingConstants.TRAILING);
 
     messageArea.setEditable(false);
     messageArea.setLineWrap(true);
     messageArea.setWrapStyleWord(true);
-    messageArea.setBorder(BorderFactory.createEmptyBorder(CHAT_BORDER_TOP, CHAT_BORDER_LEFT, CHAT_BORDER_BOTTOM, CHAT_BORDER_RIGHT));
+    messageArea.setBorder(BorderFactory.createEmptyBorder(MESSAGE_AREA_BORDER_TOP, MESSAGE_AREA_BORDER_LEFT, MESSAGE_AREA_BORDER_BOTTOM, MESSAGE_AREA_BORDER_RIGHT));
 
-    chatPanel.setBorder(BorderFactory.createEmptyBorder(CHAT_BORDER_TOP, CHAT_BORDER_LEFT, CHAT_BORDER_BOTTOM, CHAT_BORDER_RIGHT));
-    chatPanel.setLayout(new BorderLayout());
-    chatPanel.add(toggleChat, BorderLayout.NORTH);
-    chatPanel.add(textArea, BorderLayout.SOUTH);
-    chatPanel.add(chatArea, BorderLayout.CENTER);
-    chatPanel.setBackground(ColorPalette.EGG_CREAM);
-    chatPanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
-
-    gamePanel.setBackground(ColorPalette.CHEESE_GREASE);
-    gamePanel.setPreferredSize(new Dimension(GAME_AREA_SIZE,WINDOW_HEIGHT));
-    gamePanel.setBorder(BorderFactory.createEmptyBorder(GAME_BORDER_TOP, GAME_BORDER_LEFT, GAME_BORDER_BOTTOM, GAME_BORDER_RIGHT));
-
-    scorePanel.setBackground(ColorPalette.CREAM_CHEESE);
-    scorePanel.setBorder(BorderFactory.createEmptyBorder(SCORE_BORDER_TOP, SCORE_BORDER_LEFT, SCORE_BORDER_BOTTOM, SCORE_BORDER_RIGHT));
-    scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
-
-    frame.getContentPane().add(chatPanel, "East");
-    frame.getContentPane().add(scorePanel, "West");
-    frame.getContentPane().add(gamePanel, "Center");
-
-    frame.setSize(new Dimension(WINDOW_WIDTH,WINDOW_HEIGHT));
-    frame.setResizable(false);
-    frame.pack();
-
-    frame.setLocationRelativeTo(null);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    frame.requestFocus();
-    textArea.requestFocusInWindow();
+    setLayout(new BorderLayout());
+    add(toggleChat, BorderLayout.NORTH);
+    add(textArea, BorderLayout.SOUTH);
+    add(chatArea, BorderLayout.CENTER);
 
     // Add Listeners
     toggleChat.addItemListener(new ItemListener() {
@@ -159,7 +112,6 @@ public class ChatClient implements Runnable, ColorPalette {
           toggleChat.setText("Disconnect");
           textArea.setEditable(true);
 
-          frame.requestFocus();
           textArea.requestFocusInWindow();
 
           chatState = ChatState.CONNECTED;
@@ -197,18 +149,16 @@ public class ChatClient implements Runnable, ColorPalette {
 
     this.inThread.start();
     this.outThread.start();
-    this.frame.setVisible(true);
 
   }
 
   private String getServerAddress() {//throws IOException {
     String serverName = "";
     while(serverName.isEmpty()){
-      serverName = JOptionPane.showInputDialog(
-        this.frame,
-        "Enter Server's IP Address:",
-        "Welcome to Draw My Thing",
-        JOptionPane.QUESTION_MESSAGE);
+      serverName = JOptionPane.showInputDialog(null,
+                                               "Enter Server's IP Address:",
+                                               "Welcome to Draw My Thing",
+                                               JOptionPane.QUESTION_MESSAGE);
     }
 
     return serverName;
@@ -219,7 +169,7 @@ public class ChatClient implements Runnable, ColorPalette {
 
     while(port < 0 || port < 1024){
       port = Integer.parseInt(JOptionPane.showInputDialog(
-                              frame,
+                              null,
                               "Enter Server's Port:",
                               "Welcome to Draw My Thing",
                               JOptionPane.QUESTION_MESSAGE)
@@ -233,11 +183,10 @@ public class ChatClient implements Runnable, ColorPalette {
   private String getUserAlias() {//throws IOException {
     String userName = "";
     while(userName.isEmpty()){
-      userName = JOptionPane.showInputDialog(
-        frame,
-        "Choose your alias:",
-        "Alias selection",
-        JOptionPane.PLAIN_MESSAGE);
+      userName = JOptionPane.showInputDialog(null,
+                                             "Choose your alias:",
+                                             "Alias selection",
+                                             JOptionPane.PLAIN_MESSAGE);
     }
 
     return userName;
@@ -323,6 +272,7 @@ public class ChatClient implements Runnable, ColorPalette {
       }
 
     };
+
   }
 
   private void log(String msg){
@@ -366,23 +316,8 @@ public class ChatClient implements Runnable, ColorPalette {
 
   }
 
-  public static void main(String [] args) {
-
-    try {
-
-      ChatClient chatClient = new ChatClient();
-
-      Thread t = new Thread(chatClient);
-      t.start();
-
-    } catch(ArrayIndexOutOfBoundsException e) {
-      System.out.println("Usage: java ChatClient");
-      System.exit(-1);
-    } catch(Exception e){
-      System.out.println("Usage: java ChatClient");
-      System.exit(-1);
-    }
-
+  public void focusTextArea(){
+    textArea.requestFocusInWindow();
   }
 
 }
