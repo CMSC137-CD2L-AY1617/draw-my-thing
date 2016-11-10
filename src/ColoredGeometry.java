@@ -1,9 +1,12 @@
-/*
- * wrapper class representing a previously drawn line or shape, its respective color, and its type
- */
-
 import java.awt.Color;
 import java.awt.Shape;
+
+/*
+ * represents:
+ * a previously drawn line or shape,
+ * its respective color, and
+ * its type
+ */
 
 public class ColoredGeometry {
 

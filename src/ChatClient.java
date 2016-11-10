@@ -24,12 +24,14 @@ import javax.swing.text.DefaultCaret;
 
 public class ChatClient extends JPanel implements Runnable {
 
+  private DataOutputStream out;
+  private int port = 1234;
   private Socket client;
+  private String msg = "";
   private String name;
+  private String serverName = "127.0.0.1";
   private Thread inThread;
   private Thread outThread;
-  private String msg = "";
-  private DataOutputStream out;
 
   private static int CHAT_ROWS = 8;
   private static int CHAT_COLS = 24;
@@ -51,8 +53,8 @@ public class ChatClient extends JPanel implements Runnable {
 
     try{
 
-      String serverName = getServerAddress();
-      int port = getServerPort();
+      serverName = getServerAddress();
+      port = getServerPort();
 
       log("Connecting to " + serverName + " on port " + port);
       updateChatPane("Connecting to " + serverName + " on port " + port);
@@ -66,7 +68,7 @@ public class ChatClient extends JPanel implements Runnable {
       OutputStream outToServer = client.getOutputStream();
       out = new DataOutputStream(outToServer);
 
-      this.name = getUserAlias();
+      name = getUserAlias();
 
       out.writeUTF(name + " joined the conversation.");
       updateChatPane("You joined the conversation.");
@@ -74,10 +76,10 @@ public class ChatClient extends JPanel implements Runnable {
       initializeThreads();
 
     } catch(UnknownHostException e) {
-      System.out.println("Unknown Host.");
+      System.out.println("\nUnknown Host.");
       System.exit(-1);
     } catch(IOException e){
-      System.out.println("Cannot find Server");
+      System.out.println("\nCannot find Server");
       System.exit(-1);
     }
 

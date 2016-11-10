@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -10,6 +11,8 @@ public class GamePanel extends JPanel implements ChangeListener {
 
   private JColorChooser colorChooser;
   private DrawPanel drawPanel = new DrawPanel();
+  private TextPanel textPanel = new TextPanel();
+
   private GameState gameState = GameState.WAITING;
 
   public GamePanel(){
@@ -34,6 +37,9 @@ public class GamePanel extends JPanel implements ChangeListener {
     // remove built in preview panel
     colorChooser.setPreviewPanel(new JPanel());
 
+    textPanel.setPreferredSize(new Dimension(100, 100));
+
+    add(textPanel, BorderLayout.NORTH);
     add(colorChooser, BorderLayout.SOUTH);
     add(drawPanel, BorderLayout.CENTER);
 
@@ -41,8 +47,7 @@ public class GamePanel extends JPanel implements ChangeListener {
 
   public void stateChanged(ChangeEvent e) {
 
-      Color newColor = colorChooser.getColor();
-      drawPanel.setSelectedColor(newColor);
+    drawPanel.setSelectedColor(colorChooser.getColor());
 
   }
 

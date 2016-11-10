@@ -58,7 +58,7 @@ public class ChatServer extends Thread {
         log("Just connected to " + client.getRemoteSocketAddress());
 
       } catch(IOException e) {
-        System.out.println("Usage: java ChatServer");
+        System.out.println("\nUsage: java ChatServer");
         break;
       }
     }
@@ -69,9 +69,9 @@ public class ChatServer extends Thread {
        Thread t = new ChatServer();
        t.start();
     } catch(IOException e) {
-       System.out.println("Usage: java ChatServer");
+       System.out.println("\nUsage: java ChatServer");
     } catch(ArrayIndexOutOfBoundsException e) {
-       System.out.println("Usage: java ChatServer");
+       System.out.println("\nUsage: java ChatServer");
     }
   }
 }
