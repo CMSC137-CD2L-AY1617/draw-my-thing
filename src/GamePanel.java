@@ -5,6 +5,7 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.JColorChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements ChangeListener {
@@ -12,6 +13,7 @@ public class GamePanel extends JPanel implements ChangeListener {
   private JColorChooser colorChooser;
   private DrawPanel drawPanel = new DrawPanel();
   private TextPanel textPanel = new TextPanel();
+  private RandomWordGenerator generator = new RandomWordGenerator();
 
   private GameState gameState = GameState.WAITING;
 
@@ -49,6 +51,21 @@ public class GamePanel extends JPanel implements ChangeListener {
 
     drawPanel.setSelectedColor(colorChooser.getColor());
 
+  }
+
+  public void renderWordFromCategory(String category){
+    String word = generator.getWordFromCategory(category);
+
+    if(!generateSuccess(word)){
+      JOptionPane.showMessageDialog(null,"Sorry, no words exist under '"+category+"' category");
+    }
+
+      textPanel.renderText(word);
+
+  }
+
+  private boolean generateSuccess(String test){
+    return ( test != null && !test.isEmpty() );
   }
 
 }

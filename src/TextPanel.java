@@ -34,7 +34,7 @@ class TextPanel extends JPanel {
     //slow if turned on
     g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-    g2.drawString(custom_text, 5, 45);
+    g2.drawString(custom_text, 5, GameFont.size+5);
 
   }
 

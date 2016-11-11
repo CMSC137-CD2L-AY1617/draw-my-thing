@@ -29,7 +29,7 @@ public class DrawMyThing extends JFrame {
   private PlayerState playerState = PlayerState.READY;
 
   private JPanel scorePanel = new JPanel();
-  private JPanel gamePanel = new GamePanel();
+  private GamePanel gamePanel = new GamePanel();
   private ChatClient chatPanel = new ChatClient();
 
   private Thread t = new Thread(chatPanel);
@@ -67,6 +67,8 @@ public class DrawMyThing extends JFrame {
 
     setVisible(true);
     t.start();
+
+    gamePanel.renderWordFromCategory("easy");
 
   }
 

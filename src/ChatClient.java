@@ -103,20 +103,9 @@ public class ChatClient extends JPanel implements Runnable {
     toggleChat.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
         if(e.getStateChange()==ItemEvent.SELECTED){
-          toggleChat.setText("Connect");
-          textArea.setEditable(false);
-
-          chatState = ChatState.DISCONNECTED;
           disconnectChat();
-
         }
         else if(e.getStateChange()==ItemEvent.DESELECTED){
-          toggleChat.setText("Disconnect");
-          textArea.setEditable(true);
-
-          textArea.requestFocusInWindow();
-
-          chatState = ChatState.CONNECTED;
           connectChat();
         }
       }
@@ -297,6 +286,11 @@ public class ChatClient extends JPanel implements Runnable {
       out.writeUTF(name + " resumed the conversation.");
       updateChatPane("You resumed the conversation.");
       log(name + " resumed the conversation.");
+
+      toggleChat.setText("Disconnect");
+      textArea.setEditable(true);
+      textArea.requestFocusInWindow();
+      chatState = ChatState.CONNECTED;
     } catch (IOException e){
       log("client name is missing");
       System.exit(-1);
@@ -311,10 +305,28 @@ public class ChatClient extends JPanel implements Runnable {
       out.writeUTF(name + " left conversation.");
       updateChatPane("You left the conversation.");
       log(name + " left the conversation.");
+
+      toggleChat.setText("Connect");
+      textArea.setEditable(false);
+      chatState = ChatState.DISCONNECTED;
     } catch (IOException e){
       log("client name is missing");
       System.exit(-1);
     }
+
+  }
+
+  public void disableChat() {
+
+    updateChatPane("\nChat is disabled while drawing.");
+    textArea.setEditable(false);
+
+  }
+
+  public void enableChat() {
+
+    updateChatPane("Chat re-enabled.\n");
+    textArea.setEditable(true);
 
   }
 

@@ -5,7 +5,7 @@ public final class GameFont {
 
   private static final String location = "../assets/fonts/ordinary_guy/ordinaryguyDEMO.otf";
 
-  public static final float size = 40f;
+  public static final float size = 80f;
 
   public static final Font font = CustomFont.createCustomFont(location, size);
 

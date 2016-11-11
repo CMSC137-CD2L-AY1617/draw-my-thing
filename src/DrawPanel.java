@@ -104,12 +104,17 @@ public class DrawPanel extends JPanel implements ActionListener {
 
   }
 
+  public void clearPanel(){
+    surface.clear();
+
+  }
+
   public void actionPerformed(ActionEvent ae) {
 
     String selected = ae.getActionCommand().toString();
 
     if(selected.compareTo("Clear")==0){
-      surface.clear();
+      clearPanel();
       return;
     }
 
@@ -182,6 +187,7 @@ public class DrawPanel extends JPanel implements ActionListener {
           repaint();
         }
       });
+
     }
 
     private boolean isFreeDraw(){
@@ -214,16 +220,16 @@ public class DrawPanel extends JPanel implements ActionListener {
     // draw grid
     private void paintBackground(Graphics2D g2){
       g2.setPaint(Color.LIGHT_GRAY);
+      // vertical
       for (int i = 0; i < getSize().width; i += 10) {
         Shape line = new Line2D.Float(i, 0, i, getSize().height);
         g2.draw(line);
       }
-
+      // horizontal
       for (int i = 0; i < getSize().height; i += 10) {
         Shape line = new Line2D.Float(0, i, getSize().width, i);
         g2.draw(line);
       }
-
     }
 
     public void paint(Graphics g) {
