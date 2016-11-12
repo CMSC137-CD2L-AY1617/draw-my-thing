@@ -57,13 +57,13 @@ public class ChatClient extends JPanel implements Runnable {
       port = getServerPort();
 
       log("Connecting to " + serverName + " on port " + port);
-      updateChatPane("Connecting to " + serverName + " on port " + port);
+      // updateChatPane("Connecting to " + serverName + " on port " + port);
 
       this.client = new Socket(serverName, port);
       chatState = ChatState.CONNECTED;
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
-      updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
+      // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
 
       OutputStream outToServer = client.getOutputStream();
       out = new DataOutputStream(outToServer);
