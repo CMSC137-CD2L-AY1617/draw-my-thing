@@ -51,38 +51,6 @@ public class ChatClient extends JPanel implements Runnable {
 
   public ChatClient() {
 
-    try{
-
-      serverName = getServerAddress();
-      port = getServerPort();
-
-      log("Connecting to " + serverName + " on port " + port);
-      // updateChatPane("Connecting to " + serverName + " on port " + port);
-
-      this.client = new Socket(serverName, port);
-      chatState = ChatState.CONNECTED;
-
-      log("Just connected to " + this.client.getRemoteSocketAddress());
-      // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
-
-      OutputStream outToServer = client.getOutputStream();
-      out = new DataOutputStream(outToServer);
-
-      name = getUserAlias();
-
-      out.writeUTF(name + " joined the conversation.");
-      updateChatPane("You joined the conversation.");
-
-      initializeThreads();
-
-    } catch(UnknownHostException e) {
-      System.out.println("\nUnknown Host.");
-      System.exit(-1);
-    } catch(IOException e){
-      System.out.println("\nCannot find Server");
-      System.exit(-1);
-    }
-
     // GUI
     caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
@@ -122,6 +90,40 @@ public class ChatClient extends JPanel implements Runnable {
       }
     });
 
+  }
+
+  public void initializeChat(){
+    try{
+
+      serverName = getServerAddress();
+      port = getServerPort();
+
+      log("Connecting to " + serverName + " on port " + port);
+      // updateChatPane("Connecting to " + serverName + " on port " + port);
+
+      this.client = new Socket(serverName, port);
+      chatState = ChatState.CONNECTED;
+
+      log("Just connected to " + this.client.getRemoteSocketAddress());
+      // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
+
+      OutputStream outToServer = client.getOutputStream();
+      out = new DataOutputStream(outToServer);
+
+      name = getUserAlias();
+
+      out.writeUTF(name + " joined the conversation.");
+      updateChatPane("You joined the conversation.");
+
+      initializeThreads();
+
+    } catch(UnknownHostException e) {
+      System.out.println("\nUnknown Host.");
+      System.exit(-1);
+    } catch(IOException e){
+      System.out.println("\nCannot find Server");
+      System.exit(-1);
+    }
   }
 
   private void setMessage(String msg){
