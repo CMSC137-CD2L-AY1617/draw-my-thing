@@ -15,8 +15,6 @@ public class GamePanel extends JPanel implements ChangeListener {
   private TextPanel textPanel = new TextPanel();
   private RandomWordGenerator generator = new RandomWordGenerator();
 
-  private GameState gameState = GameState.WAITING;
-
   public GamePanel(){
 
     super(new BorderLayout());
