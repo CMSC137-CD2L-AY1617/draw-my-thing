@@ -1,5 +1,10 @@
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.Graphics;
@@ -16,7 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class DrawMyThing extends JFrame {
+public class DrawMyThing extends JFrame implements MouseListener {
 
   private static int CHAT_BORDER_TOP = 0;
   private static int CHAT_BORDER_LEFT = 10;
@@ -46,20 +51,46 @@ public class DrawMyThing extends JFrame {
   private GamePanel gamePanel = new GamePanel();
   private ChatClient chatPanel = new ChatClient();
 
-  private Thread t = new Thread(chatPanel);
+  private Thread chatThread = new Thread(chatPanel);
 
   private BufferedImage splash_screen;
   private File splash_file = new File("../assets/screens/splash.png");
 
-  private JFrame frame = new JFrame("Play Draw My Thing");
+  private BufferedImage about_screen;
+  private File about_file = new File("../assets/screens/about.png");
+
+  private BufferedImage help_screen;
+  private File help_file = new File("../assets/screens/help.png");
+
+  private JFrame frame = new JFrame("[Client] Draw My Thing");
+  private JPanel deck;
+
   private JPanel panel = new JPanel();
   private ImageIcon icon = new ImageIcon();
   private JLabel label = new JLabel();
 
+  private Window mainFrame;
 
   DrawMyThing() {
+    super("[Client] Draw My Thing");
 
-    setTitle("[Client] Draw My Thing");
+    initialize();
+  }
+
+  private void initialize(){
+    this.initializeFiles();
+    this.initializeComponents();
+    this.setListeners();
+  }
+
+  private void initializeComponents(){
+    deck = new JPanel(){
+      @Override
+      public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(splash_screen, 0, 0, this);
+      }
+    };
 
     chatPanel.setBackground(Palette.EGG_CREAM);
     chatPanel.setBorder(BorderFactory.createEmptyBorder(CHAT_BORDER_TOP, CHAT_BORDER_LEFT, CHAT_BORDER_BOTTOM, CHAT_BORDER_RIGHT));
@@ -73,6 +104,7 @@ public class DrawMyThing extends JFrame {
     scorePanel.setBorder(BorderFactory.createEmptyBorder(SCORE_BORDER_TOP, SCORE_BORDER_LEFT, SCORE_BORDER_BOTTOM, SCORE_BORDER_RIGHT));
     scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
+    // game area panel
     getContentPane().add(chatPanel, "East");
     getContentPane().add(scorePanel, "West");
     getContentPane().add(gamePanel, "Center");
@@ -82,68 +114,30 @@ public class DrawMyThing extends JFrame {
     pack();
 
     setLocationRelativeTo(null);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    // splash panel
+    frame.setBackground(Color.WHITE);
+    frame.setContentPane(deck);
+    frame.setPreferredSize(new Dimension(500,530));
+    frame.pack();
+    frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+    frame.setResizable(false);
+    frame.setVisible(true);
+    frame.setLocationRelativeTo(null);
 
     // set focus where user can type message
     requestFocus();
     chatPanel.focusTextArea();
 
-    // setVisible(true);
-    // t.start();
-
     gamePanel.renderWordFromCategory("easy");
 
-    initializeFiles();
-    showSplash();
-
-    addWindowListener(new WindowAdapter() {
-    @Override
-      public void windowClosing(WindowEvent windowEvent) {
-        frame.dispose();
-        setVisible(false);
-      }
-    });
+    mainFrame = SwingUtilities.getWindowAncestor(deck);
 
   }
 
-  public void showSplash(){
-    Object[] options =
-      {"Sure!",
-      "No, thanks."};
-
-    label.setIcon(icon);
-    panel.add(label);
-    frame.setContentPane(panel);
-
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setPreferredSize(new Dimension(500, 500));
-    frame.setResizable(false);
-    frame.pack();
-    frame.setLocationRelativeTo(null);
-    frame.setVisible(true);
-
-    JOptionPane optionPane = new JOptionPane("Would you like to try?",JOptionPane.QUESTION_MESSAGE,JOptionPane.YES_NO_OPTION,null,options,options[0]);
-
-    int n = optionPane.showOptionDialog(
-          null,
-          "Would you like to try?",
-          "A Silly Question",
-          JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE,
-          null,
-          options,
-          options[0]);
-
-    if( n==JOptionPane.YES_OPTION ){
-      frame.setVisible(false);
-      setVisible(true);
-      t.start();
-      gameState = GameState.INGAME;
-      startGame();
-    }
-  }
-
-  private void startGame(){
+  public void startGame(){
+    setVisible(true);
+    chatThread.start();
 
     playerState = PlayerState.DRAWING;
 
@@ -157,7 +151,8 @@ public class DrawMyThing extends JFrame {
     try{
       //picture reading
       splash_screen = ImageIO.read(splash_file);
-      icon = new ImageIcon((Image)splash_screen);
+      about_screen = ImageIO.read(about_file);
+      help_screen = ImageIO.read(help_file);
 
     }catch(Exception e){
       System.out.println();
@@ -166,6 +161,60 @@ public class DrawMyThing extends JFrame {
     }
 
   }
+
+  private void setListeners(){
+    deck.addMouseListener(this);
+    addWindowListener(new WindowAdapter() {
+    @Override
+      public void windowClosing(WindowEvent windowEvent) {
+        dispose();
+        frame.setVisible(true);
+      }
+    });
+  }
+
+  private void renderScreen(BufferedImage screen){
+    deck.getGraphics().drawImage((Image)screen, 0,0, null);
+  }
+
+  @Override
+  public void mouseClicked(MouseEvent e){
+    if( e.getY()>=400 && e.getY()<=450 ){
+
+      if( e.getX()>=190 && e.getX()<=300 ){
+        if( gameState==GameState.WAITING ){
+          frame.setVisible(false);
+          gameState = GameState.INGAME;
+          startGame();
+        }
+      }
+      else if( e.getX()>=310 && e.getX()<=440 ){
+        renderScreen(about_screen);
+      }
+      else if( e.getX()>=60 && e.getX()<=170 ){
+        renderScreen(help_screen);
+      }
+
+    }
+    if( e.getY()<=50 && e.getX()>=390 ){
+      renderScreen(splash_screen);
+      if( gameState==GameState.INGAME ){
+        return;
+      }
+    }
+  }
+
+  @Override
+  public void mouseEntered(MouseEvent e){}
+
+  @Override
+  public void mouseExited(MouseEvent e){}
+
+  @Override
+  public void mousePressed(MouseEvent e){}
+
+  @Override
+  public void mouseReleased(MouseEvent e){}
 
   public static void main(String[] args){
     new DrawMyThing();
