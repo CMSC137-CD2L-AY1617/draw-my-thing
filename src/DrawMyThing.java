@@ -1,25 +1,29 @@
-import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.Image;
 import java.awt.Window;
 import java.io.File;
+import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class DrawMyThing extends JFrame implements MouseListener {
 
@@ -60,7 +64,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private File about_file = new File("../assets/screens/about.png");
 
   private BufferedImage help_screen;
-  private File help_file = new File("../assets/screens/help.png");
+  private File help_file = new File("../assets/screens/help.jpg");
 
   private JFrame frame = new JFrame("[Client] Draw My Thing");
   private JPanel deck;
@@ -70,6 +74,17 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private JLabel label = new JLabel();
 
   private Window mainFrame;
+// =======
+//   private static JFrame home = new JFrame("Home");
+//   private static JFrame howToPlay = new JFrame("How to Play");
+//   private static JPanel homePanel = new JPanel(new BorderLayout());
+//   private static JPanel footer = new JPanel(new GridLayout(1,2));
+//   private static JButton startGame = new JButton("start game");
+//   private static JButton instructions = new JButton("how to play");
+
+
+//   private Thread t = new Thread(chatPanel);
+// >>>>>>> add start page
 
   DrawMyThing() {
     super("[Client] Draw My Thing");
@@ -129,17 +144,19 @@ public class DrawMyThing extends JFrame implements MouseListener {
     requestFocus();
     chatPanel.focusTextArea();
 
-    gamePanel.renderWordFromCategory("easy");
-
     mainFrame = SwingUtilities.getWindowAncestor(deck);
 
   }
 
   public void startGame(){
+    chatPanel.initializeChat();
     setVisible(true);
     chatThread.start();
 
     playerState = PlayerState.DRAWING;
+
+    // default to easy category for now
+    gamePanel.renderWordFromCategory("easy");
 
     if(playerState == PlayerState.DRAWING){
       chatPanel.disableChat();
@@ -216,8 +233,52 @@ public class DrawMyThing extends JFrame implements MouseListener {
   @Override
   public void mouseReleased(MouseEvent e){}
 
+// =======
+//   public static void initInstructionFrame(){
+//     JPanel inst = new JPanel(new BorderLayout());
+//     JLabel how= new JLabel(new ImageIcon("../assets/images/instructions-1.jpg"));
+
+//     inst.add(how, BorderLayout.CENTER);
+//     JButton leave = new JButton("back");
+//     inst.add(leave, BorderLayout.PAGE_END);
+//     howToPlay.add(inst);
+//     howToPlay.setSize(750,550);
+
+//     leave.addActionListener(new ActionListener() {
+//       public void actionPerformed(ActionEvent e) {
+//         howToPlay.setVisible(false);
+//         home.setVisible(true);
+//       }
+//     });
+//   }
+
+// >>>>>>> add start page
   public static void main(String[] args){
-    new DrawMyThing();
+//     JLabel logo= new JLabel(new ImageIcon("../assets/images/logo.png"));
+//     homePanel.add(logo, BorderLayout.CENTER);
+//     initInstructionFrame();
+
+//     footer.add(startGame);
+//     footer.add(instructions);
+//     homePanel.add(footer, BorderLayout.PAGE_END);
+//     home.add(homePanel);
+
+//     instructions.addActionListener(new ActionListener() {
+//       public void actionPerformed(ActionEvent e) {
+//         home.setVisible(false);
+//         howToPlay.setVisible(true);
+//       }
+//     });
+
+//     startGame.addActionListener(new ActionListener() {
+//       public void actionPerformed(ActionEvent e) {
+//         home.setVisible(false);
+          new DrawMyThing();
+//       }
+//     });
+
+//     home.setSize(500,500);
+//     home.setVisible(true);
   }
 
 }
