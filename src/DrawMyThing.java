@@ -2,6 +2,18 @@ import java.awt.Dimension;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import javax.swing.JLabel;
+import javax.swing.JFrame;
+import javax.swing.ImageIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import javax.swing.JButton;
 
 public class DrawMyThing extends JFrame {
 
@@ -31,6 +43,14 @@ public class DrawMyThing extends JFrame {
   private JPanel scorePanel = new JPanel();
   private GamePanel gamePanel = new GamePanel();
   private ChatClient chatPanel = new ChatClient();
+
+  private static JFrame home = new JFrame("Home");
+  private static JFrame howToPlay = new JFrame("How to Play");
+  private static JPanel homePanel = new JPanel(new BorderLayout());
+  private static JPanel footer = new JPanel(new GridLayout(1,2));
+  private static JButton startGame = new JButton("start game");
+  private static JButton instructions = new JButton("how to play");
+
 
   private Thread t = new Thread(chatPanel);
 
@@ -72,8 +92,50 @@ public class DrawMyThing extends JFrame {
 
   }
 
+  public static void initInstructionFrame(){
+    JPanel inst = new JPanel(new BorderLayout());
+    JLabel how= new JLabel(new ImageIcon("../assets/images/instructions-1.jpg"));
+
+    inst.add(how, BorderLayout.CENTER);
+    JButton leave = new JButton("back");
+    inst.add(leave, BorderLayout.PAGE_END);
+    howToPlay.add(inst);
+    howToPlay.setSize(750,550);
+
+    leave.addActionListener(new ActionListener() {          
+      public void actionPerformed(ActionEvent e) {
+        howToPlay.setVisible(false);
+        home.setVisible(true);
+      }
+    }); 
+  }
+
   public static void main(String[] args){
-    new DrawMyThing();
+    JLabel logo= new JLabel(new ImageIcon("../assets/images/logo.png"));    
+    homePanel.add(logo, BorderLayout.CENTER);
+    initInstructionFrame();
+
+    footer.add(startGame);
+    footer.add(instructions);
+    homePanel.add(footer, BorderLayout.PAGE_END);
+    home.add(homePanel);
+     
+    instructions.addActionListener(new ActionListener() {          
+      public void actionPerformed(ActionEvent e) {
+        home.setVisible(false);
+        howToPlay.setVisible(true);
+      }
+    }); 
+
+    startGame.addActionListener(new ActionListener() {          
+      public void actionPerformed(ActionEvent e) {
+        home.setVisible(false);
+        new DrawMyThing();
+      }
+    }); 
+
+    home.setSize(500,500);
+    home.setVisible(true);
   }
 
 }
