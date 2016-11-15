@@ -69,26 +69,10 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private JFrame frame = new JFrame("[Client] Draw My Thing");
   private JPanel deck;
 
-  private JPanel panel = new JPanel();
-  private ImageIcon icon = new ImageIcon();
-  private JLabel label = new JLabel();
-
   private Window mainFrame;
-// =======
-//   private static JFrame home = new JFrame("Home");
-//   private static JFrame howToPlay = new JFrame("How to Play");
-//   private static JPanel homePanel = new JPanel(new BorderLayout());
-//   private static JPanel footer = new JPanel(new GridLayout(1,2));
-//   private static JButton startGame = new JButton("start game");
-//   private static JButton instructions = new JButton("how to play");
-
-
-//   private Thread t = new Thread(chatPanel);
-// >>>>>>> add start page
 
   DrawMyThing() {
     super("[Client] Draw My Thing");
-
     initialize();
   }
 
@@ -120,6 +104,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
     scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
     // game area panel
+    // where we draw, chat, see scoreboard
     getContentPane().add(chatPanel, "East");
     getContentPane().add(scorePanel, "West");
     getContentPane().add(gamePanel, "Center");
@@ -131,6 +116,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
     setLocationRelativeTo(null);
 
     // splash panel
+    // first thing we see
     frame.setBackground(Color.WHITE);
     frame.setContentPane(deck);
     frame.setPreferredSize(new Dimension(500,530));
@@ -140,8 +126,9 @@ public class DrawMyThing extends JFrame implements MouseListener {
     frame.setVisible(true);
     frame.setLocationRelativeTo(null);
 
-    // set focus where user can type message
+    // set focus on game area panel
     requestFocus();
+    // focus so user can type message
     chatPanel.focusTextArea();
 
     mainFrame = SwingUtilities.getWindowAncestor(deck);
@@ -150,12 +137,15 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   public void startGame(){
     chatPanel.initializeChat();
-    setVisible(true);
     chatThread.start();
 
+    // show game area
+    setVisible(true);
+
+    // temporary default all players as selected to draw
     playerState = PlayerState.DRAWING;
 
-    // default to easy category for now
+    // temporary default to easy category for now
     gamePanel.renderWordFromCategory("easy");
 
     if(playerState == PlayerState.DRAWING){
@@ -184,7 +174,10 @@ public class DrawMyThing extends JFrame implements MouseListener {
     addWindowListener(new WindowAdapter() {
     @Override
       public void windowClosing(WindowEvent windowEvent) {
-        dispose();
+        setVisible(false);
+        gameState = GameState.WAITING;
+
+        // show splash again
         frame.setVisible(true);
       }
     });
@@ -233,52 +226,8 @@ public class DrawMyThing extends JFrame implements MouseListener {
   @Override
   public void mouseReleased(MouseEvent e){}
 
-// =======
-//   public static void initInstructionFrame(){
-//     JPanel inst = new JPanel(new BorderLayout());
-//     JLabel how= new JLabel(new ImageIcon("../assets/images/instructions-1.jpg"));
-
-//     inst.add(how, BorderLayout.CENTER);
-//     JButton leave = new JButton("back");
-//     inst.add(leave, BorderLayout.PAGE_END);
-//     howToPlay.add(inst);
-//     howToPlay.setSize(750,550);
-
-//     leave.addActionListener(new ActionListener() {
-//       public void actionPerformed(ActionEvent e) {
-//         howToPlay.setVisible(false);
-//         home.setVisible(true);
-//       }
-//     });
-//   }
-
-// >>>>>>> add start page
   public static void main(String[] args){
-//     JLabel logo= new JLabel(new ImageIcon("../assets/images/logo.png"));
-//     homePanel.add(logo, BorderLayout.CENTER);
-//     initInstructionFrame();
-
-//     footer.add(startGame);
-//     footer.add(instructions);
-//     homePanel.add(footer, BorderLayout.PAGE_END);
-//     home.add(homePanel);
-
-//     instructions.addActionListener(new ActionListener() {
-//       public void actionPerformed(ActionEvent e) {
-//         home.setVisible(false);
-//         howToPlay.setVisible(true);
-//       }
-//     });
-
-//     startGame.addActionListener(new ActionListener() {
-//       public void actionPerformed(ActionEvent e) {
-//         home.setVisible(false);
           new DrawMyThing();
-//       }
-//     });
-
-//     home.setSize(500,500);
-//     home.setVisible(true);
   }
 
 }
