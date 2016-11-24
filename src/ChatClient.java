@@ -25,13 +25,15 @@ import javax.swing.text.DefaultCaret;
 public class ChatClient extends JPanel implements Runnable {
 
   private DataOutputStream out;
+  private DataInputStream in;
   private int port = 1234;
   private Socket client;
   private String msg = "";
   private String name;
-  private String serverName = "127.0.0.1";
+  private String serverName = "230.0.0.1";
   private Thread inThread;
   private Thread outThread;
+  private DrawMyThing game;
 
   private static int CHAT_ROWS = 8;
   private static int CHAT_COLS = 24;
@@ -92,11 +94,28 @@ public class ChatClient extends JPanel implements Runnable {
 
   }
 
-  public void initializeChat(){
+  public void setGame(DrawMyThing game){
+    this.game = game;
+  }
+
+  synchronized public void initializeChat(){
     try{
 
-      serverName = getServerAddress();
-      port = getServerPort();
+      // if(!Server.waitingForClients()){
+      //   JOptionPane.showMessageDialog(null,"ERROR: Max player count reached.\nPlease wait for new a batch of players.\n");
+      //   System.exit(0);
+      // }
+
+      // serverName = getServerAddress();
+      // port = getServerPort();
+
+      serverName = Server.serverAddress;
+
+      System.out.println(ChatServerListener.maxPlayers+"=");
+
+      while(port<1024){
+        port = Server.chatPort;
+      }
 
       log("Connecting to " + serverName + " on port " + port);
       // updateChatPane("Connecting to " + serverName + " on port " + port);
@@ -107,10 +126,46 @@ public class ChatClient extends JPanel implements Runnable {
       log("Just connected to " + this.client.getRemoteSocketAddress());
       // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
 
+
       OutputStream outToServer = client.getOutputStream();
       out = new DataOutputStream(outToServer);
 
+      InputStream inFromServer = client.getInputStream();
+      in = new DataInputStream(inFromServer);
+
       name = getUserAlias();
+
+      out.writeUTF("SET_ALIAS>>"+name);
+
+      boolean added = false;
+
+      // while(ChatServerListener.waitingForClients()){
+        while(!added){
+          String response = in.readUTF();
+
+          if(response.startsWith("REJECT_ALIAS>>")){
+            response = response.replaceFirst("REJECT_ALIAS>>", "");
+
+            if(response.compareTo(name)==0){
+              JOptionPane.showMessageDialog(null,"ERROR: Alias already exists.\nPlease restart client.\n");
+              client.close();
+              System.exit(0);
+            }
+          }
+
+          if(response.startsWith("ACCEPT_ALIAS>>")){
+            response = response.replaceFirst("ACCEPT_ALIAS>>", "");
+            this.game.setName(name);
+
+            if(response.compareTo(name)==0){
+              JOptionPane.showMessageDialog(null,"SUCCESS: Alias accepted.\nPlease wait for the other players.\n");
+              added = true;
+            }
+          }
+
+        }
+        // log(name+" is waiting, "+ChatServerListener.maxPlayers+" - "+ChatServerListener.clientNameList.size()+" to go.");
+      // }
 
       out.writeUTF(name + " joined the conversation.");
       updateChatPane("You joined the conversation.");
@@ -118,12 +173,16 @@ public class ChatClient extends JPanel implements Runnable {
       initializeThreads();
 
     } catch(UnknownHostException e) {
-      System.out.println("\nUnknown Host.");
+      System.out.println("\nChat client: Unknown Host.");
       System.exit(-1);
     } catch(IOException e){
-      System.out.println("\nCannot find Server");
+      System.out.println("\nChat client: Cannot find Server");
       System.exit(-1);
     }
+  }
+
+  private boolean isMyName(String name){
+    return this.name.compareTo(name)==0;
   }
 
   private void setMessage(String msg){
@@ -145,33 +204,33 @@ public class ChatClient extends JPanel implements Runnable {
 
   }
 
-  private String getServerAddress() {//throws IOException {
-    String serverName = "";
-    while(serverName.isEmpty()){
-      serverName = JOptionPane.showInputDialog(null,
-                                               "Enter Server's IP Address:",
-                                               "Welcome to Draw My Thing",
-                                               JOptionPane.QUESTION_MESSAGE);
-    }
+  // private String getServerAddress() {//throws IOException {
+  //   String serverName = "";
+  //   while(serverName.isEmpty()){
+  //     serverName = JOptionPane.showInputDialog(null,
+  //                                              "Enter Server's IP Address:",
+  //                                              "Welcome to Draw My Thing",
+  //                                              JOptionPane.QUESTION_MESSAGE);
+  //   }
 
-    return serverName;
-  }
+  //   return serverName;
+  // }
 
-  private int getServerPort() {//throws IOException {
-    int port = -1;
+  // private int getServerPort() {//throws IOException {
+  //   int port = -1;
 
-    while(port < 0 || port < 1024){
-      port = Integer.parseInt(JOptionPane.showInputDialog(
-                              null,
-                              "Enter Server's Port:",
-                              "Welcome to Draw My Thing",
-                              JOptionPane.QUESTION_MESSAGE)
-      );
-    }
+  //   while(port < 0 || port < 1024){
+  //     port = Integer.parseInt(JOptionPane.showInputDialog(
+  //                             null,
+  //                             "Enter Server's Port:",
+  //                             "Welcome to Draw My Thing",
+  //                             JOptionPane.QUESTION_MESSAGE)
+  //     );
+  //   }
 
-    return port;
+  //   return port;
 
-  }
+  // }
 
   private String getUserAlias() {//throws IOException {
     String userName = "";
@@ -233,7 +292,7 @@ public class ChatClient extends JPanel implements Runnable {
             while(true){
               // without logging / any System.out.println statements
               // messages do not get sent to the server
-              log("waiting for new message to send");
+              log("waiting for new message");
               message=getMessage();
               if(message.compareTo("")!=0){
                 setMessage("");
@@ -270,7 +329,7 @@ public class ChatClient extends JPanel implements Runnable {
 
   private void log(String msg){
 
-    System.out.print("\n[client log]: "+msg);
+    System.out.print("\n[client tcp log]: "+msg);
 
   }
 

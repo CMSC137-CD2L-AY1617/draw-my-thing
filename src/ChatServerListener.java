@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 public class ChatServerListener implements Runnable {
   public static ArrayList<ChatServerListener> clientList = new ArrayList<ChatServerListener>();
+  public static ArrayList<String> clientNameList = new ArrayList<String>();
+  public static int maxPlayers = -1;
 
   private Socket socket;
   private DataInputStream inputStream;
@@ -22,8 +24,12 @@ public class ChatServerListener implements Runnable {
 
   }
 
+  synchronized public static boolean waitingForClients(){
+    return clientNameList.size() != maxPlayers;
+  }
+
   private static void log(String str){
-    System.out.println("\n[server listener log]: received "+str);
+    System.out.println("\n[server listener tcp log]: received "+str);
   }
 
   public void run() {
@@ -31,6 +37,20 @@ public class ChatServerListener implements Runnable {
       while(true){
         String message = inputStream.readUTF();
         log(message);
+
+        if(message.startsWith("SET_ALIAS>>")){
+          message = message.replaceFirst("SET_ALIAS>>", "");
+
+          if(clientNameList.contains(message)){
+            this.outputStream.writeUTF("REJECT_ALIAS>>"+message);
+            this.socket.shutdownInput();
+            this.socket.shutdownOutput();
+            socket.close();
+          }
+
+          clientNameList.add(message);
+          this.outputStream.writeUTF("ACCEPT_ALIAS>>"+message);
+        }
 
         // Broadcast each message sent by each client in the inputStream to each other clients on the client list.
         for(ChatServerListener listener: clientList){

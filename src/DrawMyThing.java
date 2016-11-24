@@ -60,12 +60,16 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   private PlayerState playerState = PlayerState.READY;
   private GameState gameState = GameState.WAITING;
+  private int score = 0;
+  private String alias = "";
 
   private JPanel scorePanel = new JPanel();
   private GamePanel gamePanel = new GamePanel();
   private ChatClient chatPanel = new ChatClient();
+  private GameClient gameListener = new GameClient();
 
   private Thread chatThread = new Thread(chatPanel);
+  private Thread gameThread = new Thread(gameListener);
 
   private BufferedImage splash_screen;
   private File splash_file = new File("../assets/screens/splash.png");
@@ -90,6 +94,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
     this.initializeFiles();
     this.initializeComponents();
     this.setListeners();
+    chatPanel.setGame(this);
   }
 
   private void initializeComponents(){
@@ -149,6 +154,8 @@ public class DrawMyThing extends JFrame implements MouseListener {
     chatPanel.initializeChat();
     chatThread.start();
 
+    gameThread.start();
+
     // show game area
     setVisible(true);
 
@@ -162,6 +169,10 @@ public class DrawMyThing extends JFrame implements MouseListener {
       chatPanel.disableChat();
     }
 
+  }
+
+  public void setPlayerState(PlayerState state){
+    this.playerState = state;
   }
 
   private void initializeFiles(){
@@ -195,6 +206,10 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   private void renderScreen(BufferedImage screen){
     deck.getGraphics().drawImage((Image)screen, 0,0, null);
+  }
+
+  public void setName(String name){
+    this.alias = name;
   }
 
   @Override
@@ -236,8 +251,12 @@ public class DrawMyThing extends JFrame implements MouseListener {
   @Override
   public void mouseReleased(MouseEvent e){}
 
+  public LinkedList<ColoredGeometry> getDrawings(){
+    return gamePanel.getDrawings();
+  }
+
   public static void main(String[] args){
-          new DrawMyThing();
+    new DrawMyThing();
   }
 
 }

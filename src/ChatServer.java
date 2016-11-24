@@ -9,34 +9,34 @@ public class ChatServer extends Thread {
   private JFrame frame = new JFrame("[Server] Draw My Thing");
 
   public ChatServer() throws IOException {
-    int port = getServerPort();
-    serverSocket = new ServerSocket(port);
+    // int port = getServerPort();
+    serverSocket = new ServerSocket(Server.chatPort);
   }
 
-  private int getServerPort() {
-    int port = -1;
-    String userInput = "";
+  // private int getServerPort() {
+  //   int port = -1;
+  //   String userInput = "";
 
-    while(port < 0 || port < 1024 ){
-        userInput = JOptionPane.showInputDialog(
-                              frame,
-                              "Enter chat server's port:",
-                              "Welcome to Draw My Thing",
-                              JOptionPane.QUESTION_MESSAGE);
+  //   while(port < 0 || port < 1024 ){
+  //       userInput = JOptionPane.showInputDialog(
+  //                             frame,
+  //                             "Enter chat server's port:",
+  //                             "Welcome to Draw My Thing",
+  //                             JOptionPane.QUESTION_MESSAGE);
 
-      if(userInput == null){
-        continue;
-      }
+  //     if(userInput == null){
+  //       continue;
+  //     }
 
-      port = Integer.parseInt(userInput);
-    }
+  //     port = Integer.parseInt(userInput);
+  //   }
 
-    return port;
-  }
+  //   return port;
+  // }
 
   private void log(String msg){
 
-    System.out.print("\n[server log]: "+msg);
+    System.out.print("\n[server tcp log]: "+msg);
 
   }
 
@@ -64,14 +64,14 @@ public class ChatServer extends Thread {
     }
   }
 
-  public static void main(String [] args) {
-    try {
-       Thread t = new ChatServer();
-       t.start();
-    } catch(IOException e) {
-       System.out.println("\nUsage: java ChatServer");
-    } catch(ArrayIndexOutOfBoundsException e) {
-       System.out.println("\nUsage: java ChatServer");
-    }
-  }
+  // public static void main(String [] args) {
+  //   try {
+  //      Thread t = new ChatServer();
+  //      t.start();
+  //   } catch(IOException e) {
+  //      System.out.println("\nUsage: java ChatServer");
+  //   } catch(ArrayIndexOutOfBoundsException e) {
+  //      System.out.println("\nUsage: java ChatServer");
+  //   }
+  // }
 }
