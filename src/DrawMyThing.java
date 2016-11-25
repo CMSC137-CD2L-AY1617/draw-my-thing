@@ -58,18 +58,18 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private static final int SIDE_PANEL_SIZE = (int)(WINDOW_PROPORTION - WINDOW_PROPORTION*0.35);
   private static final int GAME_AREA_SIZE = WINDOW_WIDTH - (2*SIDE_PANEL_SIZE);
 
-  private PlayerState playerState = PlayerState.READY;
+  protected PlayerState playerState = PlayerState.READY;
   private GameState gameState = GameState.WAITING;
-  private int score = 0;
   private String alias = "";
+  private String wordToDraw = "";
 
   private JPanel scorePanel = new JPanel();
   private GamePanel gamePanel = new GamePanel();
-  private ChatClient chatPanel = new ChatClient();
-  private GameClient gameListener = new GameClient();
+  private ChatClient chatClient = new ChatClient();
+  private GameClient gameClient = new GameClient();
 
-  private Thread chatThread = new Thread(chatPanel);
-  private Thread gameThread = new Thread(gameListener);
+  private Thread chatThread = new Thread(chatClient);
+  private Thread gameThread = new Thread(gameClient);
 
   private BufferedImage splash_screen;
   private File splash_file = new File("../assets/screens/splash.png");
@@ -94,7 +94,6 @@ public class DrawMyThing extends JFrame implements MouseListener {
     this.initializeFiles();
     this.initializeComponents();
     this.setListeners();
-    chatPanel.setGame(this);
   }
 
   private void initializeComponents(){
@@ -106,9 +105,9 @@ public class DrawMyThing extends JFrame implements MouseListener {
       }
     };
 
-    chatPanel.setBackground(Palette.EGG_CREAM);
-    chatPanel.setBorder(BorderFactory.createEmptyBorder(CHAT_BORDER_TOP, CHAT_BORDER_LEFT, CHAT_BORDER_BOTTOM, CHAT_BORDER_RIGHT));
-    chatPanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
+    chatClient.setBackground(Palette.EGG_CREAM);
+    chatClient.setBorder(BorderFactory.createEmptyBorder(CHAT_BORDER_TOP, CHAT_BORDER_LEFT, CHAT_BORDER_BOTTOM, CHAT_BORDER_RIGHT));
+    chatClient.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
 
     gamePanel.setBackground(Palette.CHEESE_GREASE);
     gamePanel.setPreferredSize(new Dimension(GAME_AREA_SIZE,WINDOW_HEIGHT));
@@ -120,7 +119,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
     // game area panel
     // where we draw, chat, see scoreboard
-    getContentPane().add(chatPanel, "East");
+    getContentPane().add(chatClient, "East");
     getContentPane().add(scorePanel, "West");
     getContentPane().add(gamePanel, "Center");
 
@@ -144,35 +143,52 @@ public class DrawMyThing extends JFrame implements MouseListener {
     // set focus on game area panel
     requestFocus();
     // focus so user can type message
-    chatPanel.focusTextArea();
+    chatClient.focusTextArea();
 
     mainFrame = SwingUtilities.getWindowAncestor(deck);
 
   }
 
   public void startGame(){
-    chatPanel.initializeChat();
-    chatThread.start();
+    chatClient.initializeChat();
 
+    this.alias = chatClient.getName();
+
+    gameClient.setGameInstance(this);
+    gameClient.setUpClientDetails(this.alias);
+
+    chatThread.start();
     gameThread.start();
 
     // show game area
     setVisible(true);
 
-    // temporary default all players as selected to draw
-    playerState = PlayerState.DRAWING;
-
     // temporary default to easy category for now
-    gamePanel.renderWordFromCategory("easy");
+    wordToDraw = gamePanel.renderWordFromCategory("easy");
+  }
 
-    if(playerState == PlayerState.DRAWING){
-      chatPanel.disableChat();
-    }
+  public void setDrawPermissions(){
+    setPlayerState(PlayerState.DRAWING);
+    chatClient.disableChat();
+    gamePanel.enableDrawing();
+  }
 
+  public void setGuessPermissions(){
+    setPlayerState(PlayerState.GUESSING);
+    chatClient.enableChat();
+    gamePanel.disableDrawing();
   }
 
   public void setPlayerState(PlayerState state){
     this.playerState = state;
+  }
+
+  public String getMutedWordToBroadcast(){
+    return this.wordToDraw.replaceAll("[a-zA-Z]", "_");
+  }
+
+  public void updateRenderedText(String word){
+    gamePanel.updateTextPanel(word);
   }
 
   private void initializeFiles(){
@@ -181,8 +197,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
       splash_screen = ImageIO.read(splash_file);
       about_screen = ImageIO.read(about_file);
       help_screen = ImageIO.read(help_file);
-
-    }catch(Exception e){
+    } catch(IOException e){
       System.out.println();
       e.printStackTrace();
       System.exit(-1);
@@ -206,10 +221,6 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   private void renderScreen(BufferedImage screen){
     deck.getGraphics().drawImage((Image)screen, 0,0, null);
-  }
-
-  public void setName(String name){
-    this.alias = name;
   }
 
   @Override
@@ -251,9 +262,9 @@ public class DrawMyThing extends JFrame implements MouseListener {
   @Override
   public void mouseReleased(MouseEvent e){}
 
-  public LinkedList<ColoredGeometry> getDrawings(){
-    return gamePanel.getDrawings();
-  }
+  // public LinkedList<ColoredGeometry> getDrawings(){
+  //   return gamePanel.getDrawings();
+  // }
 
   public static void main(String[] args){
     new DrawMyThing();

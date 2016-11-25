@@ -8,66 +8,61 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.swing.JOptionPane;
 import java.util.LinkedList;
+import java.util.HashMap;
 
 public class GameClient implements Runnable {
 
+  private DrawMyThing game;
+  private HashMap<String, Object> playerDetails = new HashMap<String, Object>();
   private LinkedList<ColoredGeometry> shapesDrawn;
   private static final int DELAY = 2000; //2 seconds
-  private String name = "Pia";
   int port = 1236;
   private String serverName = "230.0.0.1";
-  byte message[] = new byte[256];
-  InetAddress address;// = InetAddress.getByName(host);
-  DatagramPacket packet;// =  new DatagramPacket(message, message.length, address, port);
+  byte message[];
+  InetAddress address;
+  DatagramPacket packet;
   MulticastSocket socket;
   ByteArrayInputStream byteStream;
   ObjectInputStream is;
 
   private Thread inThread;
-  // private Thread outThread;
+
 
   private PlayerState playerState = PlayerState.READY;
 
   GameClient() {
     initializeGame();
+
   }
 
   private void log(String msg){
-
     System.out.print("\n[client udp log]: "+msg);
+  }
 
+  public void setGameInstance(DrawMyThing game){
+    this.game = game;
+  }
+
+  public void setUpClientDetails(String name){
+    playerDetails.put("alias", name);
+    playerDetails.put("score", 0);
+    playerDetails.put("permission", "GUESS"); // depends on player state
   }
 
   public void initializeGame(){
     try{
-
-      // serverName = getServerAddress();
-      // port = getServerPort();
-
-      // socket = new MulticastSocket(port);
-      // socket = new MulticastSocket(1235);
-      // address = InetAddress.getByName(serverName);
-
       while(serverName.isEmpty()){
         serverName = Server.serverAddress;
       }
-
-      log("got server addr "+serverName);
 
       while(port<1024){
         port = Server.gamePort+1;
       }
 
-      log("got server port "+port);
-
       socket = new MulticastSocket(port);
       address = InetAddress.getByName(serverName);
 
       socket.joinGroup(address);
-
-      // name = getUserAlias();
-
-      // initializeThreads();
 
     } catch(UnknownHostException e) {
       System.out.println("\nGame client: Unknown Host.");
@@ -78,8 +73,19 @@ public class GameClient implements Runnable {
     }
   }
 
-  public void run(){
+  public Object getValue(Object key){
+    return playerDetails.get(key);
+  }
 
+  public void setValue(String key, Object value){
+    playerDetails.put(key, value);
+  }
+
+  public void run(){
+    String received = "";
+    String[] parsed;
+    String muted = "";
+    boolean setPermission = false;
     try{
       while(true){
         message = new byte[256];
@@ -89,36 +95,65 @@ public class GameClient implements Runnable {
         //a UDP datagram is received
         socket.receive(packet);
 
-        String received = new String(packet.getData(), 0, packet.getLength());
+        received = new String(packet.getData(), 0, packet.getLength());
         log("received " + received);
 
-        System.exit(0);
+        if(received.startsWith("UPDATE_PERMISSION")){
+          parsed = received.split(">>");
 
-        // byte[] recvBuf = new byte[5000];
-        // DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
-        // socket.receive(packet);
-        // int byteCount = packet.getLength();
+          String name = parsed[1];
+          String newPermission = parsed[2];
 
-        // byteStream = new ByteArrayInputStream(recvBuf);
-        // is = new ObjectInputStream(new BufferedInputStream(byteStream));
+          String targetClient = (String)playerDetails.get("alias");
 
-        // Object o = is.readObject();
+          if(targetClient.compareTo(name)==0 && !setPermission){
+            playerDetails.put("permission", newPermission);
+            if(newPermission.compareTo("DRAW")==0){
+              this.game.setDrawPermissions();
 
-        // System.out.println(o.toString());
+              muted = this.game.getMutedWordToBroadcast();
 
-        // return(o);
+              setPermission = true;
+            }
+            else if(newPermission.compareTo("GUESS")==0){
+              this.game.setGuessPermissions();
+              setPermission = true;
+            }
+          }
+        }
+        else if(received.startsWith("UPDATE_TEXT") &&
+                this.game.playerState != PlayerState.DRAWING){
+          String word = received.split(">>")[1];
+          this.game.updateRenderedText(word);
+        }
+
+        if(this.game.playerState == PlayerState.DRAWING){
+          broadcastToServer(muted);
+        }
 
       }
     } catch(IOException ioe){
       System.out.println("\nError reading.");
     }
-    // catch(ClassNotFoundException cnfe){
-    //   System.out.println("\nClass not found.");
-    // }
+  }
 
-    // this.inThread.start();
-    // this.outThread.start();
+  private void broadcastToServer(String msg){
+    try{
+      byte[] message = new byte[256];
 
+      msg = "UPDATE_TEXT>>"+msg;
+
+      message = msg.getBytes();
+
+      // send it
+      packet = new DatagramPacket(message, message.length, address, port);
+
+      socket.send(packet);
+
+    } catch(IOException e){
+      // e.printStackTrace();
+      log("Muted word missing.");
+    }
   }
 
   private String getServerAddress() {//throws IOException {
@@ -172,16 +207,6 @@ public class GameClient implements Runnable {
         try{
 
           while(true){
-            // message = new byte[256];
-            // packet = new DatagramPacket(message, message.length);
-
-            // //The receive method of DatagramSocket will indefinitely block until
-            // //a UDP datagram is received
-            // socket.receive(packet);
-
-            // String received = new String(packet.getData(), 0, packet.getLength());
-            // log("received " + received);
-
             byte[] recvBuf = new byte[5000];
             DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
             socket.receive(packet);
@@ -193,9 +218,6 @@ public class GameClient implements Runnable {
             Object o = is.readObject();
 
             System.out.println(o.toString());
-
-            // return(o);
-
           }
 
         } catch(Exception e){
@@ -205,49 +227,5 @@ public class GameClient implements Runnable {
       }
 
     };
-
-    // // For outgoing messages
-    // this.outThread = new Thread(){
-
-    //   public void run(){
-
-    //     try{
-
-    //       // Send data to the DatagramSocket
-    //       while(true){
-
-    //         // after every 2 seconds
-    //         Thread.sleep(DELAY);
-
-    //         // get representation of list of shapes
-
-    //         packet =  new DatagramPacket(message, message.length, address, port);
-
-    //         log(name + ": sent list of drawn shapes");
-
-    //         socket.send(packet);
-
-    //       }
-
-    //     } catch(Exception e){
-    //       //e.printStackTrace();
-    //     }
-
-    //   }
-
-    // };
-
   }
-
-  public static void main(String [] args) {
-    try {
-       GameClient gameClient = new GameClient();
-
-       Thread gameThread = new Thread(gameClient);
-       gameThread.start();
-    } catch(ArrayIndexOutOfBoundsException e) {
-       // System.out.println("\nUsage: java ChatServer");
-    }
-  }
-
 }

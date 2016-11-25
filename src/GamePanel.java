@@ -45,21 +45,34 @@ public class GamePanel extends JPanel implements ChangeListener {
 
   }
 
+  public void enableDrawing(){
+    drawPanel.enableDrawPanel();
+  }
+
+  public void disableDrawing(){
+    drawPanel.disableDrawPanel();
+  }
+
   public void stateChanged(ChangeEvent e) {
 
     drawPanel.setSelectedColor(colorChooser.getColor());
 
   }
 
-  public void renderWordFromCategory(String category){
+  public String renderWordFromCategory(String category){
     String word = generator.getWordFromCategory(category);
 
     if(!generateSuccess(word)){
       JOptionPane.showMessageDialog(null,"Sorry, no words exist under '"+category+"' category");
     }
 
-      textPanel.renderText(word);
+    textPanel.renderText(word);
 
+    return word;
+  }
+
+  public void updateTextPanel(String word){
+    textPanel.renderText(word);
   }
 
   private boolean generateSuccess(String test){

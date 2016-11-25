@@ -21,8 +21,6 @@ public class GameServerBroadcaster extends Thread {
   private int broadcastPort = -1;
   private ByteArrayOutputStream byteStream;
   ObjectOutputStream os;
-  // private DataInputStream inputStream;
-  // private DataOutputStream outputStream;
 
   public GameServerBroadcaster() {
     try {
@@ -31,20 +29,15 @@ public class GameServerBroadcaster extends Thread {
         serverName = Server.serverAddress;
       }
 
-      log("got server addr "+serverName);
-
       while(gamePort<1024){
         gamePort = Server.gamePort;
         broadcastPort = Server.broadcastPort;
       }
 
-      log("got server port "+gamePort);
-      log("got broadcast port "+broadcastPort);
-
       socket = new DatagramSocket(gamePort);
       group = InetAddress.getByName(serverName);
 
-      // log(group.toString());
+      log("broadcasting to "+group.toString());
 
       byteStream = new ByteArrayOutputStream(5000);
       os = new ObjectOutputStream(new BufferedOutputStream(byteStream));
@@ -60,37 +53,28 @@ public class GameServerBroadcaster extends Thread {
   }
 
   public void run() {
+    String defaultUpdate = "broadcast to "+group.toString()+" every "+DELAY+" ms...";
+    byte[] message;
+    String msg = defaultUpdate;
+    boolean broadcastPermission = false;
     while(true) {
       try {
-        // LinkedList<Object> drawings = new LinkedList<Object>();
+        message = new byte[256];
 
-        // for(ColoredGeometry c : DrawPanel.getDrawings()){
-        //   os.flush();
-        //   os.writeObject( (Object)c );
-        //   os.flush();
+        if(ChatServerListener.clientNameList.size()==1 && !broadcastPermission){
+          msg = "UPDATE_PERMISSION>>"+ChatServerListener.clientNameList.get(0)+">>DRAW";
+          broadcastPermission = true;
+        }
 
-        //   //retrieves byte array
-        //   byte[] sendBuf = byteStream.toByteArray();
-        //   packet = new DatagramPacket(sendBuf, sendBuf.length, group, port);
-        //   int byteCount = packet.getLength();
-        //   socket.send(packet);
-
-        //   log("sent "+packet.toString());
-        // }
-
-        log(group.toString());
-
-        byte[] message = new byte[256];
-
-        String s = "hi";
-
-        message = s.getBytes();
+        message = msg.getBytes();
 
         // send it
         packet = new DatagramPacket(message, message.length, group, broadcastPort);
-        socket.send(packet);
 
-        // log("sent list");
+        socket.send(packet);
+        log("sent: '"+msg+"'");
+
+        msg = defaultUpdate;
 
         // sleep for a while
         try {

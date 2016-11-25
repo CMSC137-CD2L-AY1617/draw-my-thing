@@ -94,21 +94,12 @@ public class ChatClient extends JPanel implements Runnable {
 
   }
 
-  public void setGame(DrawMyThing game){
-    this.game = game;
+  public String getName(){
+    return this.name;
   }
 
   synchronized public void initializeChat(){
     try{
-
-      // if(!Server.waitingForClients()){
-      //   JOptionPane.showMessageDialog(null,"ERROR: Max player count reached.\nPlease wait for new a batch of players.\n");
-      //   System.exit(0);
-      // }
-
-      // serverName = getServerAddress();
-      // port = getServerPort();
-
       serverName = Server.serverAddress;
 
       System.out.println(ChatServerListener.maxPlayers+"=");
@@ -118,14 +109,11 @@ public class ChatClient extends JPanel implements Runnable {
       }
 
       log("Connecting to " + serverName + " on port " + port);
-      // updateChatPane("Connecting to " + serverName + " on port " + port);
 
       this.client = new Socket(serverName, port);
       chatState = ChatState.CONNECTED;
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
-      // updateChatPane("Just connected to " + this.client.getRemoteSocketAddress()+"\n");
-
 
       OutputStream outToServer = client.getOutputStream();
       out = new DataOutputStream(outToServer);
@@ -139,33 +127,30 @@ public class ChatClient extends JPanel implements Runnable {
 
       boolean added = false;
 
-      // while(ChatServerListener.waitingForClients()){
-        while(!added){
-          String response = in.readUTF();
+      while(!added){
+        String response = in.readUTF();
 
-          if(response.startsWith("REJECT_ALIAS>>")){
-            response = response.replaceFirst("REJECT_ALIAS>>", "");
+        if(response.startsWith("REJECT_ALIAS>>")){
+          response = response.replaceFirst("REJECT_ALIAS>>", "");
 
-            if(response.compareTo(name)==0){
-              JOptionPane.showMessageDialog(null,"ERROR: Alias already exists.\nPlease restart client.\n");
-              client.close();
-              System.exit(0);
-            }
+          if(response.compareTo(name)==0){
+            JOptionPane.showMessageDialog(null,"ERROR: Alias already exists.\nPlease restart client.\n");
+            client.close();
+            System.exit(0);
           }
-
-          if(response.startsWith("ACCEPT_ALIAS>>")){
-            response = response.replaceFirst("ACCEPT_ALIAS>>", "");
-            this.game.setName(name);
-
-            if(response.compareTo(name)==0){
-              JOptionPane.showMessageDialog(null,"SUCCESS: Alias accepted.\nPlease wait for the other players.\n");
-              added = true;
-            }
-          }
-
         }
-        // log(name+" is waiting, "+ChatServerListener.maxPlayers+" - "+ChatServerListener.clientNameList.size()+" to go.");
-      // }
+
+        if(response.startsWith("ACCEPT_ALIAS>>")){
+          response = response.replaceFirst("ACCEPT_ALIAS>>", "");
+          this.name = name;
+
+          if(response.compareTo(name)==0){
+            JOptionPane.showMessageDialog(null,"SUCCESS: Alias accepted.\nPlease wait for the other players.\n");
+            added = true;
+          }
+        }
+
+      }
 
       out.writeUTF(name + " joined the conversation.");
       updateChatPane("You joined the conversation.");
@@ -203,34 +188,6 @@ public class ChatClient extends JPanel implements Runnable {
     this.outThread.start();
 
   }
-
-  // private String getServerAddress() {//throws IOException {
-  //   String serverName = "";
-  //   while(serverName.isEmpty()){
-  //     serverName = JOptionPane.showInputDialog(null,
-  //                                              "Enter Server's IP Address:",
-  //                                              "Welcome to Draw My Thing",
-  //                                              JOptionPane.QUESTION_MESSAGE);
-  //   }
-
-  //   return serverName;
-  // }
-
-  // private int getServerPort() {//throws IOException {
-  //   int port = -1;
-
-  //   while(port < 0 || port < 1024){
-  //     port = Integer.parseInt(JOptionPane.showInputDialog(
-  //                             null,
-  //                             "Enter Server's Port:",
-  //                             "Welcome to Draw My Thing",
-  //                             JOptionPane.QUESTION_MESSAGE)
-  //     );
-  //   }
-
-  //   return port;
-
-  // }
 
   private String getUserAlias() {//throws IOException {
     String userName = "";

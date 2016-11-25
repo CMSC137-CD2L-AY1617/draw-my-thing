@@ -48,8 +48,8 @@ public class ChatServerListener implements Runnable {
             socket.close();
           }
 
-          clientNameList.add(message);
           this.outputStream.writeUTF("ACCEPT_ALIAS>>"+message);
+          clientNameList.add(message);
         }
 
         // Broadcast each message sent by each client in the inputStream to each other clients on the client list.

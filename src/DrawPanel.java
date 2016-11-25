@@ -102,12 +102,24 @@ public class DrawPanel extends JPanel implements ActionListener {
     this.add(toolPanel, BorderLayout.SOUTH);
     this.add(surface, BorderLayout.CENTER);
 
+    // setDrawings();
   }
 
   public void clearPanel(){
     surface.clear();
-
   }
+
+  public void disableDrawPanel(){
+    surface.disableListening();
+  }
+
+  public void enableDrawPanel(){
+    surface.enableListening();
+  }
+
+  // public static LinkedList<ColoredGeometry> getDrawings(){
+  //   return drawings;
+  // }
 
   public void actionPerformed(ActionEvent ae) {
 
@@ -125,15 +137,32 @@ public class DrawPanel extends JPanel implements ActionListener {
 
   }
 
-  private class DrawSurface extends JComponent {
+  class DrawSurface extends JComponent {
+    boolean isActiveDrawPanelListeners = false;
     LinkedList<ColoredGeometry> all_shapes = new LinkedList<ColoredGeometry>();
 
     Point startDrag, endDrag;
+
+    public boolean isListening(){
+      return isActiveDrawPanelListeners;
+    }
+
+    public void disableListening(){
+      isActiveDrawPanelListeners = false;
+    }
+
+    public void enableListening(){
+      isActiveDrawPanelListeners = true;
+    }
 
     public DrawSurface() {
       this.addMouseListener(new MouseAdapter() {
 
         public void mousePressed(MouseEvent e) {
+          if(!isListening()){
+            return;
+          }
+
           startDrag = new Point(e.getX(), e.getY());
           endDrag = startDrag;
 
@@ -145,6 +174,10 @@ public class DrawPanel extends JPanel implements ActionListener {
         }
 
         public void mouseReleased(MouseEvent e) {
+          if(!isListening()){
+            return;
+          }
+
           Shape r = null;
 
           if(selectedTool == Geometry.RECTANGLE){
@@ -175,6 +208,10 @@ public class DrawPanel extends JPanel implements ActionListener {
 
       this.addMouseMotionListener(new MouseMotionAdapter() {
         public void mouseDragged(MouseEvent e) {
+          if(!isListening()){
+            return;
+          }
+
           endDrag = new Point(e.getX(), e.getY());
 
           if(isFreeDraw()){

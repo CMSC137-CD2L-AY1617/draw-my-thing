@@ -37,12 +37,7 @@ public class Server {
       Server.chatServer.start();
       Server.gameServer.start();
 
-      // while(waitingForClients()){
-      //   while(getPlayerList().isEmpty()){
-      //     System.out.println("empty");
-      //   }
-      //   System.out.println(getPlayerList().keySet().toString()+" "+getPlayerList().size());
-      // }
+
     } catch(IOException e) {
       System.out.println("Server error: Missing port or server address.");
        // System.out.println("\nUsage: java ChatServer");
