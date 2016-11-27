@@ -3,7 +3,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
-/**
+/*
+ * sources:
+ *
+ * [CMSC 170] unused custom text panel for TicTacToe
+ *
  * on custom font:
  *
  * answered Jan 1 at 16:58 Tiffany Tran

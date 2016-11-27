@@ -31,7 +31,11 @@ public final class CustomFont {
   }
 }
 
-/**
+/*
+ * sources:
+ *
+ * [CMSC 170] unused custom text panel for TicTacToe
+ *
  * on custom font:
  *
  * answered Jul 7 '13 at 18:25 Phloo
