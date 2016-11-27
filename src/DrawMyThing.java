@@ -67,6 +67,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private GamePanel gamePanel = new GamePanel();
   private ChatClient chatClient = new ChatClient();
   private GameClient gameClient = new GameClient();
+  private TimeFrame timeFrame = new TimeFrame();
 
   private Thread chatThread = new Thread(chatClient);
   private Thread gameThread = new Thread(gameClient);
@@ -113,6 +114,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
     gamePanel.setPreferredSize(new Dimension(GAME_AREA_SIZE,WINDOW_HEIGHT));
     gamePanel.setBorder(BorderFactory.createEmptyBorder(GAME_BORDER_TOP, GAME_BORDER_LEFT, GAME_BORDER_BOTTOM, GAME_BORDER_RIGHT));
 
+    scorePanel.add(timeFrame);
     scorePanel.setBackground(Palette.CREAM_CHEESE);
     scorePanel.setBorder(BorderFactory.createEmptyBorder(SCORE_BORDER_TOP, SCORE_BORDER_LEFT, SCORE_BORDER_BOTTOM, SCORE_BORDER_RIGHT));
     scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
@@ -160,11 +162,18 @@ public class DrawMyThing extends JFrame implements MouseListener {
     chatThread.start();
     gameThread.start();
 
-    // show game area
-    setVisible(true);
-
     // temporary default to easy category for now
     wordToDraw = gamePanel.renderWordFromCategory("easy");
+
+    // show game area
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        setVisible(true);
+        timeFrame.startTime();
+        }
+    });
+
+
   }
 
   public void setDrawPermissions(){
@@ -267,7 +276,11 @@ public class DrawMyThing extends JFrame implements MouseListener {
   // }
 
   public static void main(String[] args){
-    new DrawMyThing();
+    SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+            new DrawMyThing();
+        }
+    });
   }
 
 }

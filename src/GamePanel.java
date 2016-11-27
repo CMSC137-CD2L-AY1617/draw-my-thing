@@ -7,6 +7,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class GamePanel extends JPanel implements ChangeListener {
 
@@ -42,6 +43,12 @@ public class GamePanel extends JPanel implements ChangeListener {
     add(textPanel, BorderLayout.NORTH);
     add(colorChooser, BorderLayout.SOUTH);
     add(drawPanel, BorderLayout.CENTER);
+
+    SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+          setVisible(true);
+        }
+    });
 
   }
 
