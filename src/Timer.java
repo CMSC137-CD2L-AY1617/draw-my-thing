@@ -44,13 +44,13 @@ public class Timer implements Runnable {
       while(running && !paused) {
         timeFrame.update(summedTime - (System.currentTimeMillis() - startTime));
 
-        if( summedTime - (System.currentTimeMillis() - startTime) < 0 )
+        if( summedTime - (System.currentTimeMillis() - startTime) < 0 ){
           JOptionPane.showMessageDialog(null,"Time's Up!");
           System.out.println("time's up");
           //run();
           try{
             Thread.sleep(1000000);
-          }catch(Exception e){}
+          } catch(Exception e){}
         }
       }
     }
