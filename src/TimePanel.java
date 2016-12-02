@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.BorderFactory;
 import javax.swing.SwingUtilities;
 
-public class TimeFrame extends JPanel{
+public class TimePanel extends JPanel{
   private JLabel time = new JLabel();
   private Timer timer;
   private final int BORDER_LEFT = 1;
@@ -13,18 +13,13 @@ public class TimeFrame extends JPanel{
   private final int BORDER_TOP = 1;
   private final int BORDER_BOTTOM = 1;
 
-  public TimeFrame(){
+  public TimePanel(){
     timer = new Timer(this);
-    time.setFont(time.getFont().deriveFont(30.0f));
-    setBackground(Palette.CREAM_CHEESE);
-    setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
+
+    time.setFont(TimeFont.font);
     add(time);
 
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        setVisible(true);
-        }
-    });
+    setBackground(Palette.CREAM_CHEESE);
   }
 
   public void startTime(){
@@ -36,16 +31,6 @@ public class TimeFrame extends JPanel{
     String.format("%02d", (((dT/60000)%10000)%60))+":"+ // minutes
     String.format("%02d", (((dT/1000)%1000)%60))+":"+   // seconds
     String.format("%02d", ((dT)%100)));                 // milliseconds
-  }
-
-  public static void main(String[] args){
-    JFrame f = new JFrame();
-    TimeFrame t = new TimeFrame();
-    f.add(t);
-    f.setSize(new Dimension(200,50));
-    f.setVisible(true);
-    t.startTime();
-
   }
 
 }

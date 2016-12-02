@@ -3,21 +3,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
-/*
- * sources:
- *
- * [CMSC 170] unused custom text panel for TicTacToe
- *
- * on custom font:
- *
- * answered Jan 1 at 16:58 Tiffany Tran
- * http://stackoverflow.com/questions/16761630/font-createfont-set-color-and-size-java-awt-font/34558081#34558081
- *
- * answered Mar 12 '14 at 14:44 peeskillet
- * http://stackoverflow.com/questions/22354651/cant-print-any-string-using-drawstring-in-jframe/22355052#22355052
- *
- */
-
 class TextPanel extends JPanel {
 
   private String custom_text = "";
@@ -50,3 +35,18 @@ class TextPanel extends JPanel {
   }
 
 }
+
+/*
+ * sources:
+ *
+ * [CMSC 170] unused custom text panel for TicTacToe
+ *
+ * on custom font:
+ *
+ * answered Jan 1 at 16:58 Tiffany Tran
+ * http://stackoverflow.com/questions/16761630/font-createfont-set-color-and-size-java-awt-font/34558081#34558081
+ *
+ * answered Mar 12 '14 at 14:44 peeskillet
+ * http://stackoverflow.com/questions/22354651/cant-print-any-string-using-drawstring-in-jframe/22355052#22355052
+ *
+ */

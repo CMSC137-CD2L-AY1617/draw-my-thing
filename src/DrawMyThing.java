@@ -1,3 +1,5 @@
+import javax.swing.BoxLayout;
+import java.awt.Component;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -47,10 +49,10 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private static int GAME_BORDER_BOTTOM = 0;
   private static int GAME_BORDER_RIGHT = 10;
 
-  private static int SCORE_BORDER_TOP = 0;
-  private static int SCORE_BORDER_LEFT = 0;
-  private static int SCORE_BORDER_BOTTOM = 0;
-  private static int SCORE_BORDER_RIGHT = 10;
+  private static int SIDE_BORDER_TOP = 0;
+  private static int SIDE_BORDER_LEFT = 0;
+  private static int SIDE_BORDER_BOTTOM = 0;
+  private static int SIDE_BORDER_RIGHT = 10;
 
   private static final int WINDOW_HEIGHT = 600;
   private static final int WINDOW_WIDTH = 1200;
@@ -60,14 +62,15 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   protected PlayerState playerState = PlayerState.READY;
   private GameState gameState = GameState.WAITING;
-  private String alias = "";
+  protected String alias = "";
   private String wordToDraw = "";
 
-  private JPanel scorePanel = new JPanel();
+  private JPanel sidePanel = new JPanel();
   private GamePanel gamePanel = new GamePanel();
   private ChatClient chatClient = new ChatClient();
   private GameClient gameClient = new GameClient();
-  private TimeFrame timeFrame = new TimeFrame();
+  private TimePanel timePanel = new TimePanel();
+  private ScorePanel scorePanel = new ScorePanel();
 
   private Thread chatThread = new Thread(chatClient);
   private Thread gameThread = new Thread(gameClient);
@@ -114,15 +117,29 @@ public class DrawMyThing extends JFrame implements MouseListener {
     gamePanel.setPreferredSize(new Dimension(GAME_AREA_SIZE,WINDOW_HEIGHT));
     gamePanel.setBorder(BorderFactory.createEmptyBorder(GAME_BORDER_TOP, GAME_BORDER_LEFT, GAME_BORDER_BOTTOM, GAME_BORDER_RIGHT));
 
-    scorePanel.add(timeFrame);
-    scorePanel.setBackground(Palette.CREAM_CHEESE);
-    scorePanel.setBorder(BorderFactory.createEmptyBorder(SCORE_BORDER_TOP, SCORE_BORDER_LEFT, SCORE_BORDER_BOTTOM, SCORE_BORDER_RIGHT));
-    scorePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
+    timePanel.setPreferredSize(new Dimension(500, 10));
+    scorePanel.setPreferredSize(new Dimension(500, 10));
+
+    timePanel.setSize(new Dimension(SIDE_PANEL_SIZE, 10));
+    scorePanel.setSize(new Dimension(SIDE_PANEL_SIZE, 10));
+
+
+
+    sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+    sidePanel.setBackground(Palette.CREAM_CHEESE);
+    sidePanel.setBorder(BorderFactory.createEmptyBorder(SIDE_BORDER_TOP, SIDE_BORDER_LEFT, SIDE_BORDER_BOTTOM, SIDE_BORDER_RIGHT));
+    sidePanel.setPreferredSize(new Dimension(SIDE_PANEL_SIZE,WINDOW_HEIGHT));
+
+    forceSize(timePanel, new Dimension(SIDE_PANEL_SIZE, Math.round(TimeFont.size)+15));
+    forceSize(scorePanel, new Dimension(SIDE_PANEL_SIZE, Math.round(ScoreFont.size)+(ScoreFont.padding*2)));
+
+    sidePanel.add(timePanel);
+    sidePanel.add(scorePanel);
 
     // game area panel
     // where we draw, chat, see scoreboard
     getContentPane().add(chatClient, "East");
-    getContentPane().add(scorePanel, "West");
+    getContentPane().add(sidePanel, "West");
     getContentPane().add(gamePanel, "Center");
 
     setSize(new Dimension(WINDOW_WIDTH,WINDOW_HEIGHT));
@@ -151,10 +168,16 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   }
 
+  private void forceSize(Component c, Dimension d){
+    c.setPreferredSize(d);
+    c.setMaximumSize(d);
+    c.setMinimumSize(d);
+  }
+
   public void startGame(){
     chatClient.initializeChat();
 
-    this.alias = chatClient.getName();
+    registerAlias(chatClient.getName());
 
     gameClient.setGameInstance(this);
     gameClient.setUpClientDetails(this.alias);
@@ -169,11 +192,15 @@ public class DrawMyThing extends JFrame implements MouseListener {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         setVisible(true);
-        timeFrame.startTime();
+        timePanel.startTime();
         }
     });
 
+  }
 
+  private void registerAlias(String alias){
+    this.alias = alias;
+    scorePanel.setAlias(alias);
   }
 
   public void setDrawPermissions(){
@@ -194,6 +221,10 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   public String getMutedWordToBroadcast(){
     return this.wordToDraw.replaceAll("[a-zA-Z]", "_");
+  }
+
+  public void startTime(){
+    this.timePanel.startTime();
   }
 
   public void updateRenderedText(String word){

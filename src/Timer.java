@@ -5,11 +5,11 @@ public class Timer implements Runnable {
   private Thread runThread;
   private boolean running = false;
   private boolean paused = false;
-  private TimeFrame timeFrame;
+  private TimePanel timePanel;
   private long summedTime = Timeout.EASY;
 
-  public Timer(TimeFrame timeFrame) {
-    this.timeFrame = timeFrame;
+  public Timer(TimePanel timePanel) {
+    this.timePanel = timePanel;
   }
 
   public void startTimer() {
@@ -42,7 +42,7 @@ public class Timer implements Runnable {
     }
     else{
       while(running && !paused) {
-        timeFrame.update(summedTime - (System.currentTimeMillis() - startTime));
+        timePanel.update(summedTime - (System.currentTimeMillis() - startTime));
 
         if( summedTime - (System.currentTimeMillis() - startTime) < 0 ){
           JOptionPane.showMessageDialog(null,"Time's Up!");
