@@ -461,7 +461,6 @@ public class DrawPanel extends JPanel implements ActionListener {
       setSelectedColor(c);
     }
 
-
   }
 }
 

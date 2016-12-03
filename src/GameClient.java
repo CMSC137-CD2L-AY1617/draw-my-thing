@@ -304,6 +304,45 @@ public class GameClient extends JPanel implements Runnable {
               String word = Server.parseData(received)[1];
               game.updateRenderedText(word);
             }
+            else if(received.startsWith("START_DRAW_UPDATE")){
+              parsed = Server.parseData(received);
+
+              System.out.println("ANDITO AKO");
+
+              // expected
+              // START_DRAW_UPDATE>> p[0]
+              // [action]>>          p[1]
+              // [x coord]>>         p[2]
+              // [y coord]>>         p[3]
+              // [geometry / tool]   p[4]
+              // [color in rgb]      p[5]
+              // END_DRAW_UPDATE     p[6]
+
+              Mimic m = Mimic.valueOf(parsed[1]);
+
+              int x = Integer.parseInt(parsed[2]);
+              int y = Integer.parseInt(parsed[3]);
+              Point p = new Point(x, y);
+
+              Geometry g = Geometry.valueOf(parsed[4]);
+
+              int rgb = Integer.parseInt(parsed[5]);
+              Color c = new Color(rgb);
+
+              game.gamePanel.setDrawTools(g, c);
+
+              if(m == Mimic.PRESS){
+                game.gamePanel.doMousePress(p);
+              }
+              else if(m == Mimic.RELEASE){
+                game.gamePanel.doMouseRelease(p);
+              }
+              else if(m == Mimic.DRAG){
+                game.gamePanel.doMouseDrag(p);
+              }
+
+            }
+
 
             if(game.playerState == PlayerState.DRAWING){
               sendToServer("UPDATE_TEXT"+Server.DELIMITER+muted);
