@@ -15,6 +15,7 @@ public class GamePanel extends JPanel implements ChangeListener {
   private DrawPanel drawPanel = new DrawPanel();
   private TextPanel textPanel = new TextPanel();
   private RandomWordGenerator generator = new RandomWordGenerator();
+  private GameClient client;
 
   public GamePanel(){
 
@@ -61,9 +62,16 @@ public class GamePanel extends JPanel implements ChangeListener {
   }
 
   public void stateChanged(ChangeEvent e) {
-
     drawPanel.setSelectedColor(colorChooser.getColor());
+  }
 
+  public String getDrawUpdate(){
+    return drawPanel.getDrawUpdate();
+  }
+
+  public void setUpdateInstance(GameClient client){
+    this.client = client;
+    drawPanel.setUpdateInstance(this.client);
   }
 
   public String renderWordFromCategory(String category){

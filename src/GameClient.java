@@ -1,37 +1,109 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import javax.swing.BorderFactory;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
-import java.net.MulticastSocket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.swing.JOptionPane;
 import java.util.LinkedList;
 import java.util.HashMap;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
+import javax.swing.SwingUtilities;
+import javax.swing.text.DefaultCaret;
 
-public class GameClient implements Runnable {
+public class GameClient extends JPanel implements Runnable {
 
   private DrawMyThing game;
   private HashMap<String, Object> playerDetails = new HashMap<String, Object>();
   private LinkedList<ColoredGeometry> shapesDrawn;
-  private static final int DELAY = 2000; //2 seconds
-  int port = 1236;
-  private String serverName = "230.0.0.1";
-  byte message[];
-  InetAddress address;
-  DatagramPacket packet;
-  MulticastSocket socket;
-  ByteArrayInputStream byteStream;
-  ObjectInputStream is;
-
-  private Thread inThread;
-
-
   private PlayerState playerState = PlayerState.READY;
 
+  private static final int DELAY = 2000; //2 seconds
+
+  // int port = 1236;
+  // private String serverName = "230.0.0.1";
+  // byte message[];
+  // InetAddress address;
+  // DatagramPacket packet;
+  // DatagramSocket socket;
+  // ByteArrayInputStream byteStream;
+  // ObjectInputStream is;
+
+  // private Thread inThread;
+
+  private int port = 4446;
+  private byte[] inBuff;
+  private byte[] outBuff;
+  private String ip = "127.0.0.1";
+  private InetAddress address;
+  private DatagramPacket packet;
+  private DatagramSocket socket;
+  private String delimiter = ">>";
+  private String received = "";
+  private String[] parsed;
+  private String muted = "";
+  private boolean setPermission = false;
+
+
+  private String msg = "";
+  private String name = "";
+
+  private Thread inThread;
+  private Thread outThread;
+
+  private int outPort;
+  private InetAddress outAddress;
+
+  private static int ANSWER_ROWS = 8;
+  private static int ANSWER_COLS = 24;
+
+  private static int UPDATE_AREA_BORDER_TOP = 0;
+  private static int UPDATE_AREA_BORDER_LEFT = 10;
+  private static int UPDATE_AREA_BORDER_BOTTOM = 0;
+  private static int UPDATE_AREA_BORDER_RIGHT = 0;
+
+  private JTextField guessArea = new JTextField(ANSWER_COLS);
+  private JTextArea updateArea = new JTextArea(ANSWER_ROWS, ANSWER_COLS);
+  private JScrollPane updatePane = new JScrollPane(updateArea);
+  private DefaultCaret caret = (DefaultCaret)updateArea.getCaret();
+
   GameClient() {
+    // GUI
+    caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+    updateArea.setEditable(false);
+    updateArea.setLineWrap(true);
+    updateArea.setWrapStyleWord(true);
+    updateArea.setBorder(BorderFactory.createEmptyBorder(UPDATE_AREA_BORDER_TOP, UPDATE_AREA_BORDER_LEFT, UPDATE_AREA_BORDER_BOTTOM, UPDATE_AREA_BORDER_RIGHT));
+
+    setLayout(new BorderLayout());
+
+    add(guessArea, BorderLayout.SOUTH);
+    add(updatePane, BorderLayout.CENTER);
+
+    // Add Listeners
+    guessArea.addActionListener(new ActionListener() {
+      // listen for 'enter' key
+      // set the msg variable to the update typed
+      // clear guess field for new update
+      public void actionPerformed(ActionEvent e) {
+        msg = guessArea.getText();
+        setMessage(msg);
+        guessArea.setText("");
+      }
+    });
+
     initializeGame();
+    initializeThreads();
 
   }
 
@@ -50,25 +122,54 @@ public class GameClient implements Runnable {
   }
 
   public void initializeGame(){
+    // try{
+    //   while(serverName.isEmpty()){
+    //     serverName = Server.serverAddress;
+    //   }
+
+    //   while(port<1024){
+    //     port = Server.gamePort+1;
+    //   }
+
+    //   socket = new DatagramSocket(port);
+    //   address = InetAddress.getByName(serverName);
+
+    //   socket.joinGroup(address);
+
+    // } catch(UnknownHostException e) {
+    //   System.out.println("\nGame client: Unknown Host.");
+    //   System.exit(-1);
+    // } catch(IOException e){
+    //   System.out.println("\nGame client: Cannot find Server");
+    //   System.exit(-1);
+    // }
     try{
-      while(serverName.isEmpty()){
-        serverName = Server.serverAddress;
-      }
+      port = GameServer.getClientPort();
+      ip = "127.0.0.1";
 
-      while(port<1024){
-        port = Server.gamePort+1;
-      }
+      address = InetAddress.getByName(ip);
 
-      socket = new MulticastSocket(port);
-      address = InetAddress.getByName(serverName);
+      // socket = new DatagramSocket(port, address);
 
-      socket.joinGroup(address);
+      System.out.println(port);
 
-    } catch(UnknownHostException e) {
-      System.out.println("\nGame client: Unknown Host.");
-      System.exit(-1);
+      socket = new DatagramSocket(port);
+
+
+      outPort = GameServer.getServerPort();
+      String outIP = GameServer.getServerAddress();
+      outAddress = InetAddress.getByName(outIP);
+
+      String details = "START_UDP_CLIENT"+delimiter+
+                        ip+delimiter+
+                        port+delimiter+
+                        "END_UDP_CLIENT";
+
+      sendToServer(details);
+      broadcastPermissions();
+
     } catch(IOException e){
-      System.out.println("\nGame client: Cannot find Server");
+      // e.printStackTrace();
       System.exit(-1);
     }
   }
@@ -82,79 +183,140 @@ public class GameClient implements Runnable {
   }
 
   public void run(){
-    String received = "";
-    String[] parsed;
-    String muted = "";
-    boolean setPermission = false;
-    try{
-      while(true){
-        message = new byte[256];
-        packet = new DatagramPacket(message, message.length);
+    // String received = "";
+    // String[] parsed;
+    // String muted = "";
+    // boolean setPermission = false;
+    // try{
+    //   while(true){
+    //     message = new byte[256];
+    //     packet = new DatagramPacket(message, message.length);
 
-        //The receive method of DatagramSocket will indefinitely block until
-        //a UDP datagram is received
-        socket.receive(packet);
+    //     //The receive method of DatagramSocket will indefinitely block until
+    //     //a UDP datagram is received
+    //     socket.receive(packet);
 
-        received = new String(packet.getData(), 0, packet.getLength());
-        log("received " + received);
+    //     received = new String(packet.getData(), 0, packet.getLength());
+    //     log("received " + received);
 
-        if(received.startsWith("UPDATE_PERMISSION")){
-          parsed = received.split(">>");
+    //     if(received.startsWith("UPDATE_PERMISSION")){
+    //       parsed = received.split(">>");
 
-          String name = parsed[1];
-          String newPermission = parsed[2];
+    //       String name = parsed[1];
+    //       String newPermission = parsed[2];
 
-          String targetClient = (String)playerDetails.get("alias");
+    //       String targetClient = (String)playerDetails.get("alias");
 
-          if(targetClient.compareTo(name)==0 && !setPermission){
-            playerDetails.put("permission", newPermission);
-            if(newPermission.compareTo("DRAW")==0){
-              this.game.setDrawPermissions();
+    //       if(targetClient.compareTo(name)==0 && !setPermission){
+    //         playerDetails.put("permission", newPermission);
+    //         if(newPermission.compareTo("DRAW")==0){
+    //           this.game.setDrawPermissions();
 
-              muted = this.game.getMutedWordToBroadcast();
+    //           muted = this.game.getMutedWordToBroadcast();
 
-              setPermission = true;
-            }
-            else if(newPermission.compareTo("GUESS")==0){
-              this.game.setGuessPermissions();
-              setPermission = true;
-            }
-          }
-        }
-        else if(received.startsWith("UPDATE_TEXT") &&
-                this.game.playerState != PlayerState.DRAWING){
-          String word = received.split(">>")[1];
-          this.game.updateRenderedText(word);
-        }
+    //           setPermission = true;
+    //         }
+    //         else if(newPermission.compareTo("GUESS")==0){
+    //           this.game.setGuessPermissions();
+    //           setPermission = true;
+    //         }
+    //       }
+    //     }
+    //     else if(received.startsWith("UPDATE_TEXT") &&
+    //             this.game.playerState != PlayerState.DRAWING){
+    //       String word = received.split(">>")[1];
+    //       this.game.updateRenderedText(word);
+    //     }
 
-        if(this.game.playerState == PlayerState.DRAWING){
-          broadcastToServer(muted);
-        }
+    //     if(this.game.playerState == PlayerState.DRAWING){
+    //       sendToServer(muted);
+    //     }
 
+    //   }
+    // } catch(IOException ioe){
+    //   System.out.println("\nError reading.");
+    // }
+
+    this.inThread.start();
+    this.outThread.start();
+  }
+
+  private void sendDrawUpdate(String action, int x, int y, String tool, int rgb){
+
+    String broadcastUpdate = "START_DRAW_UPDATE"+delimiter+
+                              action+delimiter+
+                              x+delimiter+
+                              y+delimiter+
+                              tool+delimiter+
+                              rgb+delimiter+
+                              "END_DRAW_UPDATE";
+
+    sendToServer(broadcastUpdate);
+  }
+
+  private void broadcastPermissions(){
+    // broadcast permissions
+    for(int i=0; i<ChatServerListener.clientNameList.size(); i++){
+      String broadcast = "UPDATE_PERMISSION>>"+ChatServerListener.clientNameList.get(i)+">>";
+      if(i==0){
+        broadcast = broadcast+"DRAW";
       }
-    } catch(IOException ioe){
-      System.out.println("\nError reading.");
+      else{
+        broadcast = broadcast+"GUESS";
+      }
+
+      sendToServer(broadcast);
     }
   }
 
-  private void broadcastToServer(String msg){
+  private void sendToServer(String msg){
     try{
       byte[] message = new byte[256];
 
-      msg = "UPDATE_TEXT>>"+msg;
+      // msg = "UPDATE_TEXT>>"+msg;
 
       message = msg.getBytes();
 
       // send it
-      packet = new DatagramPacket(message, message.length, address, port);
+      packet = new DatagramPacket(message, message.length, outAddress, outPort);
 
       socket.send(packet);
 
+
+
+
+      // log("sent "+msg+" to "+outAddress+" port "+outPort);
+      // log("sent to "+outAddress+" port "+outPort);
+
+
     } catch(IOException e){
-      // e.printStackTrace();
-      log("Muted word missing.");
+      e.printStackTrace();
+      System.exit(-1);
     }
   }
+
+  public void sendUpdate(String update){
+    sendToServer(update);
+  }
+
+  // private void sendToServer(String msg){
+  //   try{
+  //     byte[] message = new byte[256];
+
+  //     msg = "UPDATE_TEXT>>"+msg;
+
+  //     message = msg.getBytes();
+
+  //     // send it
+  //     packet = new DatagramPacket(message, message.length, address, port);
+
+  //     socket.send(packet);
+
+  //   } catch(IOException e){
+  //     // e.printStackTrace();
+  //     log("Muted word missing.");
+  //   }
+  // }
 
   private String getServerAddress() {//throws IOException {
     String serverName = "";
@@ -197,35 +359,158 @@ public class GameClient implements Runnable {
 
   }
 
+  private void setMessage(String msg){
+
+    this.msg = msg;
+
+  }
+
+  private String getMessage(){
+
+    return this.msg;
+
+  }
+
+  private void updateChatPane(String message){
+
+    String contents = this.updateArea.getText();
+    contents += message+"\n\n";
+    updateArea.setText(contents);
+
+  }
+
   private void initializeThreads(){
+
+    // // For incoming messages
+    // this.inThread = new Thread(){
+
+    //   public void run(){
+
+    //     try{
+
+    //       while(true){
+    //         byte[] recvBuf = new byte[5000];
+    //         DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
+    //         socket.receive(packet);
+    //         int byteCount = packet.getLength();
+
+    //         byteStream = new ByteArrayInputStream(recvBuf);
+    //         is = new ObjectInputStream(new BufferedInputStream(byteStream));
+
+    //         Object o = is.readObject();
+
+    //         System.out.println(o.toString());
+    //       }
+
+    //     } catch(Exception e){
+    //       //e.printStackTrace();
+    //     }
+
+    //   }
+
+    // };
 
     // For incoming messages
     this.inThread = new Thread(){
-
       public void run(){
-
         try{
-
           while(true){
-            byte[] recvBuf = new byte[5000];
-            DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
+            inBuff = new byte[256];
+            packet = new DatagramPacket(inBuff,inBuff.length);
+
+            //The receive method of DatagramSocket will indefinitely block until
+            //a UDP datagram is received
             socket.receive(packet);
-            int byteCount = packet.getLength();
 
-            byteStream = new ByteArrayInputStream(recvBuf);
-            is = new ObjectInputStream(new BufferedInputStream(byteStream));
 
-            Object o = is.readObject();
+            received = new String(packet.getData(), 0, packet.getLength());
+            log("received " + received);
+            updateChatPane("SERVER: "+received);
 
-            System.out.println(o.toString());
+            if(received.startsWith("UPDATE_PERMISSION")){
+              parsed = received.split(">>");
+
+              String name = parsed[1];
+              String newPermission = parsed[2];
+
+              String targetClient = (String)playerDetails.get("alias");
+
+              if(targetClient.compareTo(name)==0 && !setPermission){
+                playerDetails.put("permission", newPermission);
+                if(newPermission.compareTo("DRAW")==0){
+                  game.setDrawPermissions();
+
+                  muted = game.getMutedWordToBroadcast();
+
+                  setPermission = true;
+                }
+                else if(newPermission.compareTo("GUESS")==0){
+                  game.setGuessPermissions();
+                  setPermission = true;
+                }
+              }
+            }
+            else if(received.startsWith("UPDATE_TEXT") &&
+                    game.playerState != PlayerState.DRAWING){
+              String word = received.split(">>")[1];
+              game.updateRenderedText(word);
+            }
+
+            if(game.playerState == PlayerState.DRAWING){
+              sendToServer("UPDATE_TEXT>>"+muted);
+            }
+
+
           }
-
-        } catch(Exception e){
-          //e.printStackTrace();
+        } catch(IOException ioe){
+          System.out.println("\nError reading.");
         }
-
       }
 
+    };
+
+
+    // For outgoing messages
+    this.outThread = new Thread(){
+      public void run(){
+        String message;
+        try{
+          while(true){
+            broadcastPermissions();
+            System.out.println(">>>>puta");
+
+            outBuff = new byte[256];
+
+            while(true){
+              // without logging / any System.out.println statements
+              // messages do not get sent to the server
+              log("waiting for new message");
+              message=getMessage();
+              if(message.compareTo("")!=0){
+                setMessage("");
+                break;
+              }
+            }
+
+            message = message.toUpperCase();
+            message = "GUESS>>"+message;
+
+            outBuff = message.getBytes();
+
+            // send it
+            packet = new DatagramPacket(outBuff, outBuff.length, address, 4446);
+
+            socket.send(packet);
+
+            updateChatPane("You guessed "+message);
+            log(name + ": "+message);
+          }
+
+        } catch(IOException e){
+          e.printStackTrace();
+          System.exit(-1);
+        }
+      }
     };
   }
 }

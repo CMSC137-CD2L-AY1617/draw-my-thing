@@ -4,7 +4,7 @@ import javax.swing.JOptionPane;
 
 public class Server {
 
-  public static int chatPort = -1;
+  public static int chatPort = 1234;
   public static int gamePort = -1;
   public static int broadcastPort = -1;
   public static String serverAddress;
@@ -93,7 +93,7 @@ public class Server {
     while(serverName.isEmpty()){
       serverName = JOptionPane.showInputDialog(
                               null,
-                              "Enter Game Server's IP Address:",
+                              "Enter Server's IP Address:",
                               "Welcome to Draw My Thing",
                               JOptionPane.QUESTION_MESSAGE);
     }

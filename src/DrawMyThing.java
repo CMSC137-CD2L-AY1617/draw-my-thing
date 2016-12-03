@@ -135,6 +135,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
     sidePanel.add(timePanel);
     sidePanel.add(scorePanel);
+    sidePanel.add(gameClient);
 
     // game area panel
     // where we draw, chat, see scoreboard
@@ -182,6 +183,8 @@ public class DrawMyThing extends JFrame implements MouseListener {
     gameClient.setGameInstance(this);
     gameClient.setUpClientDetails(this.alias);
 
+    gamePanel.setUpdateInstance(gameClient);
+
     chatThread.start();
     gameThread.start();
 
@@ -192,7 +195,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         setVisible(true);
-        timePanel.startTime();
+        // timePanel.startTime();
         }
     });
 

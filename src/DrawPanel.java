@@ -41,6 +41,11 @@ public class DrawPanel extends JPanel implements ActionListener {
   private static final BasicStroke DEFAULT_STROKE = new BasicStroke(BasicStroke.CAP_SQUARE);
 
   private DrawSurface surface = new DrawSurface();
+  private String updateString = "";
+  private String delimiter = ">>";
+
+  private GameClient client;
+
 
   public void setSelectedColor(Color color){
 
@@ -117,9 +122,14 @@ public class DrawPanel extends JPanel implements ActionListener {
     surface.enableListening();
   }
 
-  // public static LinkedList<ColoredGeometry> getDrawings(){
-  //   return drawings;
-  // }
+  public String getDrawUpdate(){
+    return surface.getDrawUpdate();
+  }
+
+  public void setUpdateInstance(GameClient client){
+    this.client = client;
+    surface.setUpdateInstance(this.client);
+  }
 
   public void actionPerformed(ActionEvent ae) {
 
@@ -140,6 +150,7 @@ public class DrawPanel extends JPanel implements ActionListener {
   class DrawSurface extends JComponent {
     boolean isActiveDrawPanelListeners = false;
     LinkedList<ColoredGeometry> all_shapes = new LinkedList<ColoredGeometry>();
+    GameClient client;
 
     Point startDrag, endDrag;
 
@@ -170,6 +181,8 @@ public class DrawPanel extends JPanel implements ActionListener {
             pointList.add(startDrag);
           }
 
+          setDrawUpdate("PRESS", e.getX(), e.getY(), selectedTool.name(), getSelectedColor().getRGB());
+
           repaint();
         }
 
@@ -199,6 +212,8 @@ public class DrawPanel extends JPanel implements ActionListener {
             pointList.clear();
           }
 
+          setDrawUpdate("RELEASE", e.getX(), e.getY(), selectedTool.name(), getSelectedColor().getRGB());
+
           startDrag = null;
           endDrag = null;
           repaint();
@@ -221,10 +236,34 @@ public class DrawPanel extends JPanel implements ActionListener {
             g.drawLine(endDrag.x, endDrag.y, endDrag.x, endDrag.y);
           }
 
+          setDrawUpdate("DRAG", e.getX(), e.getY(), selectedTool.name(), getSelectedColor().getRGB());
+
           repaint();
         }
       });
 
+    }
+
+    private void setDrawUpdate(String action, int x, int y, String tool, int rgb){
+
+      String broadcastUpdate = "START_DRAW_UPDATE"+delimiter+
+                              action+delimiter+
+                              x+delimiter+
+                              y+delimiter+
+                              tool+delimiter+
+                              rgb+delimiter+
+                              "END_DRAW_UPDATE";
+
+      // updateString = broadcastUpdate;
+      this.client.sendUpdate(broadcastUpdate);
+    }
+
+    public void setUpdateInstance(GameClient client){
+      this.client = client;
+    }
+
+    public String getDrawUpdate(){
+      return updateString;
     }
 
     private boolean isFreeDraw(){
