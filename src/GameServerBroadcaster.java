@@ -12,20 +12,7 @@ import java.io.ObjectOutputStream;
 public class GameServerBroadcaster extends Thread {
   private static final int DELAY = 2000;
 
-  // private InetAddress group;
-  // private DatagramSocket socket;
-  // private DatagramPacket packet;
-  // private byte message[];
-  // private String serverName = "";
-  // private int gamePort = -1;
-  // private int broadcastPort = -1;
-  // private ByteArrayOutputStream byteStream;
-  // ObjectOutputStream os;
-
   public static ArrayList<GameServerBroadcaster> clientList = new ArrayList<GameServerBroadcaster>();
-
-  // protected BufferedReader in = null;
-  protected boolean moreQuotes = true;
 
   private long FIVE_SECONDS = 5000;
 
@@ -42,7 +29,6 @@ public class GameServerBroadcaster extends Thread {
 
   private String received;
   private String defaultUpdate;
-  // byte[] message;
   private String msg;
   private boolean broadcastPermission = false;
 
@@ -50,12 +36,10 @@ public class GameServerBroadcaster extends Thread {
   private final static Object serverPortLock = new Object();
   private final static Object clientPortLock = new Object();
 
-
   public GameServerBroadcaster(DatagramSocket socket, InetAddress address, int port) throws IOException {
     this.port = port;
     this.address = address;
     this.socket = socket;
-    // oneTimeSocket = new DatagramSocket(1501);
 
     start();
   }
@@ -65,11 +49,6 @@ public class GameServerBroadcaster extends Thread {
   }
 
   public void run() {
-    // String defaultUpdate = "broadcast to "+group.toString()+" every "+DELAY+" ms...";
-    // byte[] message;
-    // String msg = defaultUpdate;
-    // boolean broadcastPermission = false;
-    // while(true) {
       try {
         byte[] message = new byte[256];
         String msg = "";
@@ -88,35 +67,16 @@ public class GameServerBroadcaster extends Thread {
 
         message = msg.getBytes();
 
-        // send it
-        // packet = new DatagramPacket(message, message.length, group, broadcastPort);
-
-        // socket.send(packet);
-
         for(GameServerBroadcaster listener: clientList){
-          // if(listener != this){
             packet = new DatagramPacket(message, message.length, listener.getClientAddress(), listener.getClientPort());
             // send it
             socket.send(packet);
-          // }
         }
-
-    //     log("sent: '"+msg+"'");
-
-    //     msg = defaultUpdate;
-
-    //     // sleep for a while
-    //     try {
-    //       Thread.sleep(DELAY);
-    //     } catch (InterruptedException e){
-    //       log("interrupted!");
-    //     }
 
       } catch (IOException e) {
         e.printStackTrace();
         System.exit(0);
       }
-    // }
 
     try{
       while(true){
@@ -128,10 +88,7 @@ public class GameServerBroadcaster extends Thread {
         this.socket.receive(packet);
         received = new String(packet.getData(), 0, packet.getLength());
 
-
-
         log("received " + received);
-        // updateChatPane("SERVER: "+received);
 
         outBuff = new byte[256];
         outBuff = received.getBytes();
@@ -139,6 +96,7 @@ public class GameServerBroadcaster extends Thread {
         for(GameServerBroadcaster listener: clientList){
           if(listener != this){
             packet = new DatagramPacket(outBuff, outBuff.length, listener.getClientAddress(), listener.getClientPort());
+
             // send it
             socket.send(packet);
           }
@@ -160,29 +118,5 @@ public class GameServerBroadcaster extends Thread {
       return address;
     }
   }
-
-  // public static void oneTimeBroadcast(String msg){
-  //   try{
-  //     byte[] message = new byte[256];
-
-  //     // msg = "UPDATE_TEXT>>"+msg;
-
-  //     message = msg.getBytes();
-
-  //     for(GameServerBroadcaster listener: clientList){
-  //       DatagramPacket oneTimePacket = new DatagramPacket(message, message.length, listener.getClientAddress(), listener.getClientPort());
-  //         // send it
-  //         oneTimeSocket.send(oneTimePacket);
-  //     }
-
-  //     // log("sent "+msg+" to "+outAddress+" port "+outPort);
-  //     // log("sent to "+outAddress+" port "+outPort);
-
-
-  //   } catch(IOException e){
-  //     e.printStackTrace();
-  //     System.exit(-1);
-  //   }
-  // }
 
 }

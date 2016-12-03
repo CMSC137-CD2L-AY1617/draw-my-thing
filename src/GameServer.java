@@ -36,7 +36,6 @@ public class GameServer extends Thread {
     try{
       address = InetAddress.getByName(ip);
       socket = new DatagramSocket(port);
-      // socket = new DatagramSocket(port);
     } catch(UnknownHostException e){
       e.printStackTrace();
       System.exit(-1);
@@ -83,8 +82,6 @@ public class GameServer extends Thread {
   }
 
   public void run() {
-    // broadcaster.start();
-    // log("started on "+Server.serverAddress+":"+Server.gamePort);
     while(true){
       try{
         buf = new byte[256];
@@ -102,10 +99,6 @@ public class GameServer extends Thread {
           // expected
           // p[0]              p[1]   p[2]   p[4]
           // START_UDP_CLIENT>>[IP]>>[PORT]>>END_UDP_CLIENT
-
-          // for(String s : parsed){
-          //   System.out.println(s);
-          // }
 
           if(parsed.length<4){
             continue;
