@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -72,6 +73,22 @@ public class GamePanel extends JPanel implements ChangeListener {
   public void setUpdateInstance(GameClient client){
     this.client = client;
     drawPanel.setUpdateInstance(this.client);
+  }
+
+  public void doMousePress(Point p){
+    drawPanel.doMousePress(p);
+  }
+
+  public void doMouseRelease(Point p){
+    drawPanel.doMouseRelease(p);
+  }
+
+  public void doMouseDrag(Point p){
+    drawPanel.doMouseDrag(p);
+  }
+
+  public void setDrawTools(Geometry tool, Color c){
+    drawPanel.setDrawTools(tool, c);
   }
 
   public String renderWordFromCategory(String category){

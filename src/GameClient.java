@@ -1,5 +1,7 @@
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.Point;
 import java.io.IOException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -302,7 +304,6 @@ public class GameClient extends JPanel implements Runnable {
               String word = Server.parseData(received)[1];
               game.updateRenderedText(word);
             }
-
 
             if(game.playerState == PlayerState.DRAWING){
               sendToServer("UPDATE_TEXT"+Server.DELIMITER+muted);

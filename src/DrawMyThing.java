@@ -66,7 +66,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private String wordToDraw = "";
 
   private JPanel sidePanel = new JPanel();
-  private GamePanel gamePanel = new GamePanel();
+  protected GamePanel gamePanel = new GamePanel();
   private ChatClient chatClient = new ChatClient();
   private GameClient gameClient = new GameClient();
   private TimePanel timePanel = new TimePanel();

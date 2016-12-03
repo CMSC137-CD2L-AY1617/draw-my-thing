@@ -126,6 +126,22 @@ public class DrawPanel extends JPanel implements ActionListener {
     surface.setUpdateInstance(this.client);
   }
 
+  public void doMousePress(Point p){
+    surface.doMousePress(p);
+  }
+
+  public void doMouseRelease(Point p){
+    surface.doMouseRelease(p);
+  }
+
+  public void doMouseDrag(Point p){
+    surface.doMouseDrag(p);
+  }
+
+  public void setDrawTools(Geometry tool, Color c){
+    surface.setDrawTools(tool, c);
+  }
+
   public void actionPerformed(ActionEvent ae) {
 
     String selected = ae.getActionCommand().toString();
@@ -372,6 +388,80 @@ public class DrawPanel extends JPanel implements ActionListener {
     private Rectangle2D.Float makeRectangle(int x1, int y1, int x2, int y2) {
       return new Rectangle2D.Float(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x1 - x2), Math.abs(y1 - y2));
     }
+
+    // mimic mouse & mouse motion listeners
+    public void doMousePress(Point start) {
+      // if(!isListening()){
+      //   return;
+      // }
+
+      // startDrag = new Point(e.getX(), e.getY());
+      startDrag = start;
+      endDrag = startDrag;
+
+      if(isFreeDraw()){
+        pointList.add(startDrag);
+      }
+
+      repaint();
+    }
+
+    public void doMouseRelease(Point end) {
+      // if(!isListening()){
+      //   return;
+      // }
+
+      Shape r = null;
+
+      if(selectedTool == Geometry.RECTANGLE){
+        r = makeRectangle(startDrag.x, startDrag.y, end.x, end.y);
+      }
+      else if(selectedTool == Geometry.LINE){
+        r = makeLine(startDrag.x, startDrag.y, end.x, end.y);
+      }
+      else if(selectedTool == Geometry.ELLIPSE){
+        r = makeEllipse(startDrag.x, startDrag.y, end.x, end.y);
+      }
+      else if(isFreeDraw()){
+        r = makeFreeLine(pointList);
+      }
+
+      all_shapes.add(new ColoredGeometry(r, getSelectedColor(), selectedTool));
+
+      if(isFreeDraw()){
+        pointList.clear();
+      }
+
+      startDrag = null;
+      endDrag = null;
+      repaint();
+
+    }
+
+    public void doMouseDrag(Point end) {
+      // if(!isListening()){
+      //   return;
+      // }
+
+      // endDrag = new Point(e.getX(), e.getY());
+      endDrag = end;
+
+      if(isFreeDraw()){
+        pointList.add(endDrag);
+
+        Graphics g = getGraphics();
+        g.drawLine(endDrag.x, endDrag.y, endDrag.x, endDrag.y);
+      }
+
+      repaint();
+    }
+
+    public void setDrawTools(Geometry tool, Color c){
+      selectedTool = tool;
+      setSelectedColor(c);
+    }
+
+
   }
 }
 
