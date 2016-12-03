@@ -4,10 +4,13 @@ import javax.swing.JOptionPane;
 
 public class Server {
 
+  public static final String DELIMITER = ">>";
+
   public static int chatPort = 1234;
   public static int gamePort = -1;
   public static int broadcastPort = -1;
   public static String serverAddress;
+
   private static ChatServer chatServer;
   private static GameServer gameServer;
 
@@ -102,9 +105,11 @@ public class Server {
   }
 
   private void log(String msg){
-
     System.out.print("\n[server log]: "+msg);
+  }
 
+  public static String[] parseData(String data){
+    return data.split(Server.DELIMITER);
   }
 
   public static void main(String [] args) {

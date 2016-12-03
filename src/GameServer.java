@@ -94,7 +94,7 @@ public class GameServer extends Thread {
         log("received "+received);
 
         if(received.startsWith("START_UDP_CLIENT")){
-          parsed = received.split(">>");
+          parsed = Server.parseData(received);
 
           // expected
           // p[0]              p[1]   p[2]   p[4]

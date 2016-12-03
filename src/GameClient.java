@@ -36,7 +36,6 @@ public class GameClient extends JPanel implements Runnable {
   private InetAddress address;
   private DatagramPacket packet;
   private DatagramSocket socket;
-  private String delimiter = ">>";
   private String received = "";
   private String[] parsed;
   private String muted = "";
@@ -122,9 +121,9 @@ public class GameClient extends JPanel implements Runnable {
       String outIP = GameServer.getServerAddress();
       outAddress = InetAddress.getByName(outIP);
 
-      String details = "START_UDP_CLIENT"+delimiter+
-                        ip+delimiter+
-                        port+delimiter+
+      String details = "START_UDP_CLIENT"+Server.DELIMITER+
+                        ip+Server.DELIMITER+
+                        port+Server.DELIMITER+
                         "END_UDP_CLIENT";
 
       sendToServer(details);
@@ -151,12 +150,12 @@ public class GameClient extends JPanel implements Runnable {
 
   private void sendDrawUpdate(String action, int x, int y, String tool, int rgb){
 
-    String broadcastUpdate = "START_DRAW_UPDATE"+delimiter+
-                              action+delimiter+
-                              x+delimiter+
-                              y+delimiter+
-                              tool+delimiter+
-                              rgb+delimiter+
+    String broadcastUpdate = "START_DRAW_UPDATE"+Server.DELIMITER+
+                              action+Server.DELIMITER+
+                              x+Server.DELIMITER+
+                              y+Server.DELIMITER+
+                              tool+Server.DELIMITER+
+                              rgb+Server.DELIMITER+
                               "END_DRAW_UPDATE";
 
     sendToServer(broadcastUpdate);
@@ -165,7 +164,7 @@ public class GameClient extends JPanel implements Runnable {
   private void broadcastPermissions(){
     // broadcast permissions
     for(int i=0; i<ChatServerListener.clientNameList.size(); i++){
-      String broadcast = "UPDATE_PERMISSION>>"+ChatServerListener.clientNameList.get(i)+">>";
+      String broadcast = "UPDATE_PERMISSION"+Server.DELIMITER+ChatServerListener.clientNameList.get(i)+Server.DELIMITER;
       if(i==0){
         broadcast = broadcast+"DRAW";
       }
@@ -180,14 +179,12 @@ public class GameClient extends JPanel implements Runnable {
   private void sendToServer(String msg){
     try{
       byte[] message = new byte[256];
-
       message = msg.getBytes();
 
       // send it
       packet = new DatagramPacket(message, message.length, outAddress, outPort);
 
       socket.send(packet);
-
     } catch(IOException e){
       e.printStackTrace();
       System.exit(-1);
@@ -279,7 +276,7 @@ public class GameClient extends JPanel implements Runnable {
             updateChatPane("SERVER: "+received);
 
             if(received.startsWith("UPDATE_PERMISSION")){
-              parsed = received.split(">>");
+              parsed = Server.parseData(received);
 
               String name = parsed[1];
               String newPermission = parsed[2];
@@ -301,14 +298,14 @@ public class GameClient extends JPanel implements Runnable {
                 }
               }
             }
-            else if(received.startsWith("UPDATE_TEXT") &&
-                    game.playerState != PlayerState.DRAWING){
-              String word = received.split(">>")[1];
+            else if(received.startsWith("UPDATE_TEXT") && game.playerState != PlayerState.DRAWING){
+              String word = Server.parseData(received)[1];
               game.updateRenderedText(word);
             }
 
+
             if(game.playerState == PlayerState.DRAWING){
-              sendToServer("UPDATE_TEXT>>"+muted);
+              sendToServer("UPDATE_TEXT"+Server.DELIMITER+muted);
             }
 
 
@@ -328,7 +325,6 @@ public class GameClient extends JPanel implements Runnable {
         try{
           while(true){
             broadcastPermissions();
-            System.out.println(">>>>puta");
 
             outBuff = new byte[256];
 
@@ -344,7 +340,7 @@ public class GameClient extends JPanel implements Runnable {
             }
 
             message = message.toUpperCase();
-            message = "GUESS>>"+message;
+            message = "GUESS"+Server.DELIMITER+message;
 
             outBuff = message.getBytes();
 

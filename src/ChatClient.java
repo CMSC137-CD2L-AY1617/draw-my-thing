@@ -123,15 +123,15 @@ public class ChatClient extends JPanel implements Runnable {
 
       name = getUserAlias();
 
-      out.writeUTF("SET_ALIAS>>"+name);
+      out.writeUTF("SET_ALIAS"+Server.DELIMITER+name);
 
       boolean added = false;
 
       while(!added){
         String response = in.readUTF();
 
-        if(response.startsWith("REJECT_ALIAS>>")){
-          response = response.replaceFirst("REJECT_ALIAS>>", "");
+        if(response.startsWith("REJECT_ALIAS"+Server.DELIMITER)){
+          response = response.replaceFirst("REJECT_ALIAS"+Server.DELIMITER, "");
 
           if(response.compareTo(name)==0){
             JOptionPane.showMessageDialog(null,"ERROR: Alias already exists.\nPlease restart client.\n");
@@ -140,8 +140,8 @@ public class ChatClient extends JPanel implements Runnable {
           }
         }
 
-        if(response.startsWith("ACCEPT_ALIAS>>")){
-          response = response.replaceFirst("ACCEPT_ALIAS>>", "");
+        if(response.startsWith("ACCEPT_ALIAS"+Server.DELIMITER)){
+          response = response.replaceFirst("ACCEPT_ALIAS"+Server.DELIMITER, "");
           this.name = name;
 
           if(response.compareTo(name)==0){

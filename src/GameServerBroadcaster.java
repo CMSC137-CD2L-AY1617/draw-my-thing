@@ -49,34 +49,34 @@ public class GameServerBroadcaster extends Thread {
   }
 
   public void run() {
-      try {
-        byte[] message = new byte[256];
-        String msg = "";
+    try {
+      byte[] message = new byte[256];
+      String msg = "";
 
-        while(ChatServerListener.clientNameList.isEmpty()){
-          log("waiting");
-        }
-
-        if(ChatServerListener.clientNameList.size()==1 && !broadcastPermission){
-          msg = "UPDATE_PERMISSION>>"+ChatServerListener.clientNameList.get(0)+">>DRAW";
-          broadcastPermission = true;
-        }
-        // else{
-        //   msg = "UPDATE_PERMISSION>>"+ChatServerListener.clientNameList.get(0)+">>GUESS";
-        // }
-
-        message = msg.getBytes();
-
-        for(GameServerBroadcaster listener: clientList){
-            packet = new DatagramPacket(message, message.length, listener.getClientAddress(), listener.getClientPort());
-            // send it
-            socket.send(packet);
-        }
-
-      } catch (IOException e) {
-        e.printStackTrace();
-        System.exit(0);
+      while(ChatServerListener.clientNameList.isEmpty()){
+        log("waiting");
       }
+
+      if(ChatServerListener.clientNameList.size()==1 && !broadcastPermission){
+        msg = "UPDATE_PERMISSION"+Server.DELIMITER+ChatServerListener.clientNameList.get(0)+Server.DELIMITER+"DRAW";
+        broadcastPermission = true;
+      }
+
+
+      message = msg.getBytes();
+
+      for(GameServerBroadcaster listener: clientList){
+        // if(listener != this){
+          packet = new DatagramPacket(message, message.length, listener.getClientAddress(), listener.getClientPort());
+          // send it
+          socket.send(packet);
+        // }
+      }
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.exit(0);
+    }
 
     try{
       while(true){

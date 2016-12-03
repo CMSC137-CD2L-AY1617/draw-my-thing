@@ -38,17 +38,17 @@ public class ChatServerListener implements Runnable {
         String message = inputStream.readUTF();
         log(message);
 
-        if(message.startsWith("SET_ALIAS>>")){
-          message = message.replaceFirst("SET_ALIAS>>", "");
+        if(message.startsWith("SET_ALIAS"+Server.DELIMITER)){
+          message = message.replaceFirst("SET_ALIAS"+Server.DELIMITER, "");
 
           if(clientNameList.contains(message)){
-            this.outputStream.writeUTF("REJECT_ALIAS>>"+message);
+            this.outputStream.writeUTF("REJECT_ALIAS"+Server.DELIMITER+message);
             this.socket.shutdownInput();
             this.socket.shutdownOutput();
             socket.close();
           }
 
-          this.outputStream.writeUTF("ACCEPT_ALIAS>>"+message);
+          this.outputStream.writeUTF("ACCEPT_ALIAS"+Server.DELIMITER+message);
           clientNameList.add(message);
         }
 

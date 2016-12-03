@@ -42,21 +42,16 @@ public class DrawPanel extends JPanel implements ActionListener {
 
   private DrawSurface surface = new DrawSurface();
   private String updateString = "";
-  private String delimiter = ">>";
 
   private GameClient client;
 
 
   public void setSelectedColor(Color color){
-
     selectedColor = color;
-
   }
 
   public Color getSelectedColor(){
-
     return selectedColor;
-
   }
 
   public DrawPanel() {
@@ -246,12 +241,12 @@ public class DrawPanel extends JPanel implements ActionListener {
 
     private void setDrawUpdate(String action, int x, int y, String tool, int rgb){
 
-      String broadcastUpdate = "START_DRAW_UPDATE"+delimiter+
-                              action+delimiter+
-                              x+delimiter+
-                              y+delimiter+
-                              tool+delimiter+
-                              rgb+delimiter+
+      String broadcastUpdate = "START_DRAW_UPDATE"+Server.DELIMITER+
+                              action+Server.DELIMITER+
+                              x+Server.DELIMITER+
+                              y+Server.DELIMITER+
+                              tool+Server.DELIMITER+
+                              rgb+Server.DELIMITER+
                               "END_DRAW_UPDATE";
 
       // updateString = broadcastUpdate;
