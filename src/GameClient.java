@@ -34,7 +34,7 @@ public class GameClient extends JPanel implements Runnable {
   private int port = 4446;
   private byte[] inBuff;
   private byte[] outBuff;
-  private String ip = "127.0.0.1";
+  private String ip;
   private InetAddress address;
   private DatagramPacket packet;
   private DatagramSocket socket;
@@ -50,6 +50,7 @@ public class GameClient extends JPanel implements Runnable {
   private Thread outThread;
 
   private int outPort;
+  private String serverAddress;
   private InetAddress outAddress;
 
   private static int ANSWER_ROWS = 8;
@@ -91,13 +92,22 @@ public class GameClient extends JPanel implements Runnable {
       }
     });
 
-    initializeGame();
-    initializeThreads();
+  }
 
+  public void setAlias(String name){
+    this.name = name;
   }
 
   private void log(String msg){
     System.out.print("\n[client udp log]: "+msg);
+  }
+
+
+  public void setClientDetails(Client client){
+    this.serverAddress = client.serverAddress;
+    this.ip = client.clientAddress;
+    this.port = client.gamePort;
+    // this.name = client.name;
   }
 
   public void setGameInstance(DrawMyThing game){
@@ -112,15 +122,23 @@ public class GameClient extends JPanel implements Runnable {
 
   public void initializeGame(){
     try{
-      port = GameServer.getClientPort();
-      ip = "127.0.0.1";
+      // port = GameServer.getClientPort();
+
+      // something
+      // ip = clientAddress;
+      // ip = setAddress();
 
       address = InetAddress.getByName(ip);
 
+      log("Connecting to " + ip + " on port " + port);
+
       socket = new DatagramSocket(port);
+      // socket = new DatagramSocket(port, address);
+
+      log("Just connected to " + this.socket.getLocalSocketAddress());
 
       outPort = GameServer.getServerPort();
-      String outIP = GameServer.getServerAddress();
+      String outIP = serverAddress;
       outAddress = InetAddress.getByName(outIP);
 
       String details = "START_UDP_CLIENT"+Server.DELIMITER+
@@ -129,10 +147,12 @@ public class GameClient extends JPanel implements Runnable {
                         "END_UDP_CLIENT";
 
       sendToServer(details);
-      broadcastPermissions();
+      // broadcastPermissions();
+
+      initializeThreads();
 
     } catch(IOException e){
-      // e.printStackTrace();
+      e.printStackTrace();
       System.exit(-1);
     }
   }
@@ -163,20 +183,20 @@ public class GameClient extends JPanel implements Runnable {
     sendToServer(broadcastUpdate);
   }
 
-  private void broadcastPermissions(){
-    // broadcast permissions
-    for(int i=0; i<ChatServerListener.clientNameList.size(); i++){
-      String broadcast = "UPDATE_PERMISSION"+Server.DELIMITER+ChatServerListener.clientNameList.get(i)+Server.DELIMITER;
-      if(i==0){
-        broadcast = broadcast+"DRAW";
-      }
-      else{
-        broadcast = broadcast+"GUESS";
-      }
+  // private void broadcastPermissions(){
+  //   // broadcast permissions
+  //   for(int i=0; i<ChatServerListener.clientNameList.size(); i++){
+  //     String broadcast = "UPDATE_PERMISSION"+Server.DELIMITER+ChatServerListener.clientNameList.get(i)+Server.DELIMITER;
+  //     if(i==0){
+  //       broadcast = broadcast+"DRAW";
+  //     }
+  //     else{
+  //       broadcast = broadcast+"GUESS";
+  //     }
 
-      sendToServer(broadcast);
-    }
-  }
+  //     sendToServer(broadcast);
+  //   }
+  // }
 
   private void sendToServer(String msg){
     try{
@@ -197,46 +217,30 @@ public class GameClient extends JPanel implements Runnable {
     sendToServer(update);
   }
 
-  private String getServerAddress() {//throws IOException {
-    String serverName = "";
-    while(serverName.isEmpty()){
-      serverName = JOptionPane.showInputDialog(null,
-                                               "Enter Game Server's IP Address:",
-                                               "Welcome to Draw My Thing",
-                                               JOptionPane.QUESTION_MESSAGE);
-    }
+  // private String setAddress() {//throws IOException {
+  //   String ip = "";
+  //   while(ip.isEmpty()){
+  //     ip = JOptionPane.showInputDialog(null,
+  //                                              "Enter IP Address:",
+  //                                              "Welcome to Draw My Thing",
+  //                                              JOptionPane.QUESTION_MESSAGE);
+  //   }
 
-    return serverName;
-  }
+  //   return ip;
+  // }
 
-  private int getServerPort() {//throws IOException {
-    int port = -1;
+  // private String setServerAddress() {//throws IOException {
+  //   String serverAddress = "";
+  //   while(serverAddress.isEmpty()){
+  //     serverAddress = JOptionPane.showInputDialog(
+  //                             null,
+  //                             "Enter Server's IP Address:",
+  //                             "Welcome to Draw My Thing",
+  //                             JOptionPane.QUESTION_MESSAGE);
+  //   }
 
-    while(port < 0 || port < 1024){
-      port = Integer.parseInt(JOptionPane.showInputDialog(
-                              null,
-                              "Enter Game Server's Port:",
-                              "Welcome to Draw My Thing",
-                              JOptionPane.QUESTION_MESSAGE)
-      );
-    }
-
-    return port;
-
-  }
-
-  private String getUserAlias() {//throws IOException {
-    String userName = "";
-    while(userName.isEmpty()){
-      userName = JOptionPane.showInputDialog(null,
-                                             "Choose your alias:",
-                                             "Alias selection",
-                                             JOptionPane.PLAIN_MESSAGE);
-    }
-
-    return userName;
-
-  }
+  //   return serverAddress;
+  // }
 
   private void setMessage(String msg){
 
@@ -263,21 +267,20 @@ public class GameClient extends JPanel implements Runnable {
     // For incoming messages
     this.inThread = new Thread(){
       public void run(){
-        try{
+        // try{
           while(true){
-            inBuff = new byte[256];
-            packet = new DatagramPacket(inBuff,inBuff.length);
+            received = receiveData();
 
-            //The receive method of DatagramSocket will indefinitely block until
-            //a UDP datagram is received
-            socket.receive(packet);
-
-
-            received = new String(packet.getData(), 0, packet.getLength());
-            log("received " + received);
             updateChatPane("SERVER: "+received);
 
-            if(received.startsWith("UPDATE_PERMISSION")){
+            if(received.startsWith("STATE"+Server.DELIMITER)){
+              received = received.replaceFirst("STATE"+Server.DELIMITER, "");
+              game.setGameState(GameState.valueOf(received));
+
+              // System.exit(-1);
+
+            }
+            else if(received.startsWith("UPDATE_PERMISSION")){
               parsed = Server.parseData(received);
 
               String name = parsed[1];
@@ -306,8 +309,6 @@ public class GameClient extends JPanel implements Runnable {
             }
             else if(received.startsWith("START_DRAW_UPDATE")){
               parsed = Server.parseData(received);
-
-              System.out.println("ANDITO AKO");
 
               // expected
               // START_DRAW_UPDATE>> p[0]
@@ -350,9 +351,9 @@ public class GameClient extends JPanel implements Runnable {
 
 
           }
-        } catch(IOException ioe){
-          System.out.println("\nError reading.");
-        }
+        // } catch(IOException ioe){
+        //   System.out.println("\nError reading.");
+        // }
       }
 
     };
@@ -364,7 +365,7 @@ public class GameClient extends JPanel implements Runnable {
         String message;
         try{
           while(true){
-            broadcastPermissions();
+            // broadcastPermissions();
 
             outBuff = new byte[256];
 
@@ -399,5 +400,24 @@ public class GameClient extends JPanel implements Runnable {
         }
       }
     };
+  }
+
+  private String receiveData(){
+    try{
+      inBuff = new byte[256];
+      packet = new DatagramPacket(inBuff,inBuff.length);
+
+      //The receive method of DatagramSocket will indefinitely block until
+      //a UDP datagram is received
+      this.socket.receive(packet);
+      received = new String(packet.getData(), 0, packet.getLength());
+
+      log("received " + received);
+
+    } catch(IOException ioe){
+      System.out.println("\nError reading.");
+    }
+
+    return received;
   }
 }

@@ -20,7 +20,7 @@ public class ChatServer extends Thread {
     // continuously waits for clients to connect
     while(true) {
       try {
-        log("Waiting for client on port " + serverSocket.getLocalPort() + "...");
+        log("Waiting for client on "+serverSocket.getLocalSocketAddress()+" on port " + serverSocket.getLocalPort() + "...");
 
         Socket client = serverSocket.accept();
 

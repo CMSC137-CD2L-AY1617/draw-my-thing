@@ -45,9 +45,9 @@ public class Timer implements Runnable {
         timePanel.update(summedTime - (System.currentTimeMillis() - startTime));
 
         if( summedTime - (System.currentTimeMillis() - startTime) < 0 ){
-          JOptionPane.showMessageDialog(null,"Time's Up!");
+          // JOptionPane.showMessageDialog(null,"Time's Up!");
           System.out.println("time's up");
-          //run();
+          run();
           try{
             Thread.sleep(1000000);
           } catch(Exception e){}

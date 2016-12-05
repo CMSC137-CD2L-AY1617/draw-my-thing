@@ -1,9 +1,11 @@
 import java.awt.AlphaComposite;
+import java.awt.AWTException;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,6 +19,7 @@ import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Robot;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -45,6 +48,7 @@ public class DrawPanel extends JPanel implements ActionListener {
 
   private GameClient client;
 
+  private Robot robot;
 
   public void setSelectedColor(Color color){
     selectedColor = color;
@@ -103,6 +107,13 @@ public class DrawPanel extends JPanel implements ActionListener {
     this.add(surface, BorderLayout.CENTER);
 
     // setDrawings();
+
+    try{
+      robot = new Robot();
+    } catch(AWTException e){
+      e.printStackTrace();
+    }
+
   }
 
   public void clearPanel(){
@@ -403,6 +414,9 @@ public class DrawPanel extends JPanel implements ActionListener {
         pointList.add(startDrag);
       }
 
+      // robot.mousePress(InputEvent.BUTTON1_MASK);
+      // robot.mouseMove(startDrag.x, startDrag.y);
+
       repaint();
     }
 
@@ -426,6 +440,9 @@ public class DrawPanel extends JPanel implements ActionListener {
         r = makeFreeLine(pointList);
       }
 
+      // robot.mouseRelease(InputEvent.BUTTON1_MASK);
+      // robot.mouseMove(end.x, end.y);
+
       all_shapes.add(new ColoredGeometry(r, getSelectedColor(), selectedTool));
 
       if(isFreeDraw()){
@@ -446,8 +463,12 @@ public class DrawPanel extends JPanel implements ActionListener {
       // endDrag = new Point(e.getX(), e.getY());
       endDrag = end;
 
+      // robot.mouseRelease(InputEvent.BUTTON1_MASK);
+
       if(isFreeDraw()){
         pointList.add(endDrag);
+
+        // robot.mouseMove(endDrag.x, endDrag.y);
 
         Graphics g = getGraphics();
         g.drawLine(endDrag.x, endDrag.y, endDrag.x, endDrag.y);

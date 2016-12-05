@@ -26,14 +26,14 @@ public class ChatClient extends JPanel implements Runnable {
 
   private DataOutputStream out;
   private DataInputStream in;
-  private int port = 1234;
+  private int port;// = 1234;
   private Socket client;
   private String msg = "";
   private String name;
-  private String serverName = "230.0.0.1";
+  private String serverAddress;
   private Thread inThread;
   private Thread outThread;
-  private DrawMyThing game;
+  // private DrawMyThing game;
 
   private static int CHAT_ROWS = 8;
   private static int CHAT_COLS = 24;
@@ -94,23 +94,28 @@ public class ChatClient extends JPanel implements Runnable {
 
   }
 
-  public String getName(){
-    return this.name;
+  public String getAlias(){
+    return name;
+  }
+
+  public void setClientDetails(Client client){
+    this.serverAddress = client.serverAddress;
+    this.port = client.chatPort;
+    // this.name = client.name;
   }
 
   synchronized public void initializeChat(){
     try{
-      serverName = Server.serverAddress;
+      // something
+      // serverAddress = Server.serverAddress;
 
-      System.out.println(ChatServerListener.maxPlayers+"=");
+      // while(port<1024){
+      //   port = Server.chatPort;
+      // }
 
-      while(port<1024){
-        port = Server.chatPort;
-      }
+      log("Connecting to " + serverAddress + " on port " + port);
 
-      log("Connecting to " + serverName + " on port " + port);
-
-      this.client = new Socket(serverName, port);
+      this.client = new Socket(serverAddress, port);
       chatState = ChatState.CONNECTED;
 
       log("Just connected to " + this.client.getRemoteSocketAddress());
@@ -121,7 +126,7 @@ public class ChatClient extends JPanel implements Runnable {
       InputStream inFromServer = client.getInputStream();
       in = new DataInputStream(inFromServer);
 
-      name = getUserAlias();
+      // name = getUserAlias();
 
       out.writeUTF("SET_ALIAS"+Server.DELIMITER+name);
 
@@ -142,7 +147,7 @@ public class ChatClient extends JPanel implements Runnable {
 
         if(response.startsWith("ACCEPT_ALIAS"+Server.DELIMITER)){
           response = response.replaceFirst("ACCEPT_ALIAS"+Server.DELIMITER, "");
-          this.name = name;
+          setAlias(name);
 
           if(response.compareTo(name)==0){
             JOptionPane.showMessageDialog(null,"SUCCESS: Alias accepted.\nPlease wait for the other players.\n");
@@ -166,20 +171,20 @@ public class ChatClient extends JPanel implements Runnable {
     }
   }
 
+  public void setAlias(String name){
+    this.name = name;
+  }
+
   private boolean isMyName(String name){
     return this.name.compareTo(name)==0;
   }
 
   private void setMessage(String msg){
-
     this.msg = msg;
-
   }
 
   private String getMessage(){
-
     return this.msg;
-
   }
 
   public void run(){
@@ -189,18 +194,18 @@ public class ChatClient extends JPanel implements Runnable {
 
   }
 
-  private String getUserAlias() {//throws IOException {
-    String userName = "";
-    while(userName.isEmpty()){
-      userName = JOptionPane.showInputDialog(null,
-                                             "Choose your alias:",
-                                             "Alias selection",
-                                             JOptionPane.PLAIN_MESSAGE);
-    }
+  // private String getUserAlias() {//throws IOException {
+  //   String userName = "";
+  //   while(userName.isEmpty()){
+  //     userName = JOptionPane.showInputDialog(null,
+  //                                            "Choose your alias:",
+  //                                            "Alias selection",
+  //                                            JOptionPane.PLAIN_MESSAGE);
+  //   }
 
-    return userName;
+  //   return userName;
 
-  }
+  // }
 
   private void initializeThreads(){
 
@@ -224,8 +229,9 @@ public class ChatClient extends JPanel implements Runnable {
             log(name + ": ");
           }
 
-        } catch(Exception e){
-          //e.printStackTrace();
+        } catch(IOException e){
+          e.printStackTrace();
+          System.exit(-1);
         }
 
       }
@@ -275,7 +281,7 @@ public class ChatClient extends JPanel implements Runnable {
           }
 
         } catch(Exception e){
-          //e.printStackTrace();
+          e.printStackTrace();
         }
 
       }
@@ -343,6 +349,7 @@ public class ChatClient extends JPanel implements Runnable {
 
   public void enableChat() {
 
+    updateChatPane("\nPermissions updated.");
     updateChatPane("Chat re-enabled.\n");
     textArea.setEditable(true);
 

@@ -6,50 +6,53 @@ public class Server {
 
   public static final String DELIMITER = ">>";
 
+  public static int minPlayers = 1;
+  public static int maxPlayers = 0;
   public static int chatPort = 1234;
-  public static int gamePort = -1;
-  public static int broadcastPort = -1;
+  public static int gamePort = 1500;
+  // volatile public static int broadcastPort = -1;
   public static String serverAddress;
 
   private static ChatServer chatServer;
   private static GameServer gameServer;
 
+
+
   public Server(){
-    try {
+    // try {
 
-      while(ChatServerListener.maxPlayers<1){
-        int max = getMaxPlayers();
-        ChatServerListener.maxPlayers = max;
-      }
+    //   while(maxPlayers<minPlayers){
+    //     maxPlayers = setMaxPlayers();
+    //   }
 
-      while(Server.chatPort<1024){
-        int port = getServerPort();
-        Server.chatPort = port;
-        Server.gamePort = port+1;
-        Server.broadcastPort = port+2;
-      }
+    //   while(Server.chatPort<1024){
+    //     int port = setServerPort();
+    //     Server.chatPort = port;
+    //     Server.gamePort = port+1;
+    //     // Server.broadcastPort = port+2;
+    //   }
 
-      while(Server.serverAddress == null || Server.serverAddress.isEmpty()){
-        String address = getServerAddress();
-        Server.serverAddress = address;
-      }
+    //   while(Server.serverAddress == null || Server.serverAddress.isEmpty()){
+    //     String address = setServerAddress();
+    //     Server.serverAddress = address;
+    //   }
 
-      Server.chatServer = new ChatServer();
-      Server.gameServer = new GameServer();
+    //   Server.chatServer = new ChatServer();
+    //   Server.gameServer = new GameServer();
 
-      Server.chatServer.start();
-      Server.gameServer.start();
+    //   Server.chatServer.start();
+    //   Server.gameServer.start();
 
 
-    } catch(IOException e) {
-      System.out.println("Server error: Missing port or server address.");
-       // System.out.println("\nUsage: java ChatServer");
-    } catch(ArrayIndexOutOfBoundsException e) {
-       // System.out.println("\nUsage: java ChatServer");
-    }
+    // } catch(IOException e) {
+    //   System.out.println("Server error: Missing port or server address.");
+    //    // System.out.println("\nUsage: java ChatServer");
+    // } catch(ArrayIndexOutOfBoundsException e) {
+    //    // System.out.println("\nUsage: java ChatServer");
+    // }
   }
 
-  private int getServerPort() {
+  private static int setServerPort() {
     int port = -1;
     String userInput = "";
 
@@ -70,7 +73,7 @@ public class Server {
     return port;
   }
 
-  private int getMaxPlayers() {
+  private static int setMaxPlayers() {
     int max = -1;
     String userInput = "";
 
@@ -85,13 +88,18 @@ public class Server {
         continue;
       }
 
-      max = Integer.parseInt(userInput);
+      try{
+        max = Integer.parseInt(userInput);
+      } catch(NumberFormatException e){
+        return setMaxPlayers();
+      }
+
     }
 
     return max;
   }
 
-  private String getServerAddress() {//throws IOException {
+  private static String setServerAddress() {//throws IOException {
     String serverName = "";
     while(serverName.isEmpty()){
       serverName = JOptionPane.showInputDialog(
@@ -112,7 +120,45 @@ public class Server {
     return data.split(Server.DELIMITER);
   }
 
-  public static void main(String [] args) {
-    new Server();
+  synchronized public static int getMaxPlayers(){
+    return maxPlayers;
+  }
+
+  synchronized public static String getServerAddress(){
+    return serverAddress;
+  }
+
+  synchronized public static void main(String [] args) {
+    // new Server();
+    try {
+
+      while(maxPlayers<minPlayers){
+        maxPlayers = setMaxPlayers();
+      }
+
+      // while(Server.chatPort<1024){
+      //   int port = setServerPort();
+      //   Server.chatPort = port;
+      //   Server.gamePort = port+1;
+      //   // Server.broadcastPort = port+2;
+      // }
+
+      // while(Server.serverAddress == null ||
+      //       Server.serverAddress.isEmpty()){
+      //   String address = setServerAddress();
+      //   Server.serverAddress = address;
+      // }
+
+      Server.chatServer = new ChatServer();
+      Server.gameServer = new GameServer();
+
+      Server.chatServer.start();
+      Server.gameServer.start();
+
+
+    } catch(IOException e) {
+      System.out.println("Server error: Missing port or server address.");
+       // System.out.println("\nUsage: java ChatServer");
+    }
   }
 }

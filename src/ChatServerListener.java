@@ -6,7 +6,8 @@ import java.util.ArrayList;
 public class ChatServerListener implements Runnable {
   public static ArrayList<ChatServerListener> clientList = new ArrayList<ChatServerListener>();
   public static ArrayList<String> clientNameList = new ArrayList<String>();
-  public static int maxPlayers = -1;
+
+  private static int maxPlayers = -1;
 
   private Socket socket;
   private DataInputStream inputStream;

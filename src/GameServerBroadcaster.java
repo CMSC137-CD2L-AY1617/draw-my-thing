@@ -8,13 +8,15 @@ import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class GameServerBroadcaster extends Thread {
   private static final int DELAY = 2000;
 
   public static ArrayList<GameServerBroadcaster> clientList = new ArrayList<GameServerBroadcaster>();
 
-  private long FIVE_SECONDS = 5000;
+  private static int maxPlayers = -1;
 
   private Thread inThread;
   private Thread outThread;
@@ -30,11 +32,15 @@ public class GameServerBroadcaster extends Thread {
   private String received;
   private String defaultUpdate;
   private String msg;
-  private boolean broadcastPermission = false;
+  // private boolean broadcastPermission = false;
+
+  private final static Object clientPortLock = new Object();
+  public static ArrayList<Integer> portList = new ArrayList<Integer>();
+  private static Random random = new Random();
 
   private final static Object ipLock = new Object();
-  private final static Object serverPortLock = new Object();
-  private final static Object clientPortLock = new Object();
+  // private final static Object serverPortLock = new Object();
+  // private final static Object randGamePortLock = new Object();
 
   public GameServerBroadcaster(DatagramSocket socket, InetAddress address, int port) throws IOException {
     this.port = port;
@@ -49,62 +55,23 @@ public class GameServerBroadcaster extends Thread {
   }
 
   public void run() {
-    try {
-      byte[] message = new byte[256];
-      String msg = "";
-
-      while(ChatServerListener.clientNameList.isEmpty()){
-        log("waiting");
-      }
-
-      if(ChatServerListener.clientNameList.size()==1 && !broadcastPermission){
-        msg = "UPDATE_PERMISSION"+Server.DELIMITER+ChatServerListener.clientNameList.get(0)+Server.DELIMITER+"DRAW";
-        broadcastPermission = true;
-      }
-
-
-      message = msg.getBytes();
-
-      for(GameServerBroadcaster listener: clientList){
-        // if(listener != this){
-          packet = new DatagramPacket(message, message.length, listener.getClientAddress(), listener.getClientPort());
-          // send it
-          socket.send(packet);
-        // }
-      }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-      System.exit(0);
+    while(ChatServerListener.clientNameList.isEmpty()){
+      log("waiting");
     }
 
-    try{
-      while(true){
-        inBuff = new byte[256];
-        packet = new DatagramPacket(inBuff,inBuff.length);
+    // block
+    // received = receiveData();
+    // while(received.compareTo("START_GAME")!=0){
+    //   log(">> waiting");
+    // }
 
-        //The receive method of DatagramSocket will indefinitely block until
-        //a UDP datagram is received
-        this.socket.receive(packet);
-        received = new String(packet.getData(), 0, packet.getLength());
-
-        log("received " + received);
-
-        outBuff = new byte[256];
-        outBuff = received.getBytes();
-
-        for(GameServerBroadcaster listener: clientList){
-          if(listener != this){
-            packet = new DatagramPacket(outBuff, outBuff.length, listener.getClientAddress(), listener.getClientPort());
-
-            // send it
-            socket.send(packet);
-          }
-        }
-      }
-    } catch(IOException ioe){
-      System.out.println("\nError reading.");
+    // game proper
+    while(true){
+      received = receiveData();
+      outBuff = prepareData(received);
+      sendData(outBuff);
     }
+
   }
 
   synchronized public int getClientPort(){
@@ -118,5 +85,66 @@ public class GameServerBroadcaster extends Thread {
       return address;
     }
   }
+
+  private void sendData(byte[] outBuff){
+    try{
+      for(GameServerBroadcaster listener: clientList){
+        if(listener != this){
+          packet = new DatagramPacket(outBuff, outBuff.length, listener.getClientAddress(), listener.getClientPort());
+
+          // send it
+          socket.send(packet);
+        }
+      }
+    } catch(IOException ioe){
+      System.out.println("\nError reading.");
+    }
+  }
+
+  private String receiveData(){
+    try{
+      inBuff = new byte[256];
+      packet = new DatagramPacket(inBuff,inBuff.length);
+
+      //The receive method of DatagramSocket will indefinitely block until
+      //a UDP datagram is received
+      this.socket.receive(packet);
+      received = new String(packet.getData(), 0, packet.getLength());
+
+      log("received " + received);
+
+    } catch(IOException ioe){
+      System.out.println("\nError reading.");
+    }
+
+    return received;
+  }
+
+  private byte[] prepareData(String received){
+    outBuff = new byte[256];
+    outBuff = received.getBytes();
+    return outBuff;
+  }
+
+  synchronized public static int getGamePort(){
+    // synchronized(randGamePortLock){
+      // synchronized(countLock){
+        return generateRandomPort();
+      // }
+    // }
+  }
+
+  synchronized private static int generateRandomPort(){
+    int randPort = 0;
+    while(portList.contains(randPort) ||
+          randPort<2000){
+
+      randPort = random.nextInt(63536)+2000;
+    }
+
+    portList.add(randPort);
+    return randPort;
+  }
+
 
 }

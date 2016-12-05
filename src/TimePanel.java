@@ -26,6 +26,10 @@ public class TimePanel extends JPanel{
     timer.startTimer();
   }
 
+  public void displayStartTime(long time){
+    update(time);
+  }
+
   public void update(long dT){
     time.setText( // convert milliseconds into other forms
     String.format("%02d", (((dT/60000)%10000)%60))+":"+ // minutes
