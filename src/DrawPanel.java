@@ -19,7 +19,6 @@ import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.Robot;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -49,8 +48,6 @@ public class DrawPanel extends JPanel implements ActionListener {
   private String updateString = "";
 
   private GameClient client;
-
-  private Robot robot;
 
   public void setSelectedColor(Color color){
     selectedColor = color;
@@ -107,14 +104,6 @@ public class DrawPanel extends JPanel implements ActionListener {
     this.setLayout(new BorderLayout());
     this.add(toolPanel, BorderLayout.SOUTH);
     this.add(surface, BorderLayout.CENTER);
-
-    // setDrawings();
-
-    try{
-      robot = new Robot();
-    } catch(AWTException e){
-      e.printStackTrace();
-    }
 
   }
 
@@ -410,11 +399,6 @@ public class DrawPanel extends JPanel implements ActionListener {
 
     // mimic mouse & mouse motion listeners
     public void doMousePress(Point start) {
-      // if(!isListening()){
-      //   return;
-      // }
-
-      // startDrag = new Point(e.getX(), e.getY());
       startDrag = start;
       endDrag = startDrag;
 
@@ -422,17 +406,10 @@ public class DrawPanel extends JPanel implements ActionListener {
         pointList.add(startDrag);
       }
 
-      // robot.mousePress(InputEvent.BUTTON1_MASK);
-      // robot.mouseMove(startDrag.x, startDrag.y);
-
       repaint();
     }
 
     public void doMouseRelease(Point end) {
-      // if(!isListening()){
-      //   return;
-      // }
-
       Shape r = null;
 
       if(selectedTool == Geometry.RECTANGLE){
@@ -448,9 +425,6 @@ public class DrawPanel extends JPanel implements ActionListener {
         r = makeFreeLine(pointList);
       }
 
-      // robot.mouseRelease(InputEvent.BUTTON1_MASK);
-      // robot.mouseMove(end.x, end.y);
-
       all_shapes.add(new ColoredGeometry(r, getSelectedColor(), selectedTool));
 
       if(isFreeDraw()){
@@ -464,19 +438,10 @@ public class DrawPanel extends JPanel implements ActionListener {
     }
 
     public void doMouseDrag(Point end) {
-      // if(!isListening()){
-      //   return;
-      // }
-
-      // endDrag = new Point(e.getX(), e.getY());
       endDrag = end;
-
-      // robot.mouseRelease(InputEvent.BUTTON1_MASK);
 
       if(isFreeDraw()){
         pointList.add(endDrag);
-
-        // robot.mouseMove(endDrag.x, endDrag.y);
 
         Graphics g = getGraphics();
         g.drawLine(endDrag.x, endDrag.y, endDrag.x, endDrag.y);
