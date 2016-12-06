@@ -65,6 +65,7 @@ public class GameServerBroadcaster extends Thread {
     // game proper
     while(true){
       received = receiveData();
+      received = receiveObject();
       outBuff = prepareData(received);
       sendData(outBuff);
     }
@@ -108,7 +109,29 @@ public class GameServerBroadcaster extends Thread {
       this.socket.receive(packet);
       received = new String(packet.getData(), 0, packet.getLength());
 
-      log("received " + received);
+      // ColoredGeometry cg = ColoredGeometry.getObject(inBuff);
+
+      log("received str " + received);
+
+    } catch(IOException ioe){
+      System.out.println("\nError reading.");
+    }
+
+    return received;
+  }
+
+  private String receiveObject(){
+    try{
+      inBuff = new byte[256];
+      packet = new DatagramPacket(inBuff,inBuff.length);
+
+      //The receive method of DatagramSocket will indefinitely block until
+      //a UDP datagram is received
+      this.socket.receive(packet);
+
+      ColoredGeometry cg = ColoredGeometry.getObject(inBuff);
+
+      log("received obj " + received);
 
     } catch(IOException ioe){
       System.out.println("\nError reading.");

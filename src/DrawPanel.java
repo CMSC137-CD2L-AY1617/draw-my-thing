@@ -232,7 +232,8 @@ public class DrawPanel extends JPanel implements ActionListener {
             r = makeFreeLine(pointList);
           }
 
-          all_shapes.add(new ColoredGeometry(r, getSelectedColor(), selectedTool));
+          ColoredGeometry cg = new ColoredGeometry(r, getSelectedColor(), selectedTool);
+          all_shapes.add(cg);
 
           if(isFreeDraw()){
             pointList.clear();
@@ -349,6 +350,9 @@ public class DrawPanel extends JPanel implements ActionListener {
         g2 = setStrokeToUse(g2, entry.getGeometry());
         g2.setPaint(entry.getColor());
         g2.draw(entry.getShape());
+
+        // byte[] arr = ColoredGeometry.getByteArray(entry);
+        // this.client.sendUpdate(arr);
       }
 
       // still dragging

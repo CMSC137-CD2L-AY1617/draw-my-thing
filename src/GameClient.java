@@ -216,6 +216,18 @@ public class GameClient extends JPanel implements Runnable {
     sendToServer(update);
   }
 
+  public void sendUpdate(byte[] message){
+    try{
+      // send it
+      packet = new DatagramPacket(message, message.length, outAddress, outPort);
+
+      socket.send(packet);
+    } catch(IOException e){
+      e.printStackTrace();
+      System.exit(-1);
+    }
+  }
+
   // private String setAddress() {//throws IOException {
   //   String ip = "";
   //   while(ip.isEmpty()){
