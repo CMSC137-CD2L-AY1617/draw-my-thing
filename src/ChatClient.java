@@ -28,14 +28,13 @@ public class ChatClient extends JPanel implements Runnable {
 
   private DataOutputStream out;
   private DataInputStream in;
-  private int port;// = 1234;
+  private int port;
   private Socket client;
   private String msg = "";
   private String name;
   private String serverAddress;
   private Thread inThread;
   private Thread outThread;
-  // private DrawMyThing game;
 
   private static int CHAT_ROWS = 8;
   private static int CHAT_COLS = 24;
@@ -103,18 +102,10 @@ public class ChatClient extends JPanel implements Runnable {
   public void setClientDetails(Client client){
     this.serverAddress = client.serverAddress;
     this.port = client.chatPort;
-    // this.name = client.name;
   }
 
   synchronized public void initializeChat(){
     try{
-      // something
-      // serverAddress = Server.serverAddress;
-
-      // while(port<1024){
-      //   port = Server.chatPort;
-      // }
-
       log("Connecting to " + serverAddress + " on port " + port);
 
       this.client = new Socket(serverAddress, port);
@@ -127,8 +118,6 @@ public class ChatClient extends JPanel implements Runnable {
 
       InputStream inFromServer = client.getInputStream();
       in = new DataInputStream(inFromServer);
-
-      // name = getUserAlias();
 
       out.writeUTF("SET_ALIAS"+Server.DELIMITER+name);
 
@@ -195,19 +184,6 @@ public class ChatClient extends JPanel implements Runnable {
     this.outThread.start();
 
   }
-
-  // private String getUserAlias() {//throws IOException {
-  //   String userName = "";
-  //   while(userName.isEmpty()){
-  //     userName = JOptionPane.showInputDialog(null,
-  //                                            "Choose your alias:",
-  //                                            "Alias selection",
-  //                                            JOptionPane.PLAIN_MESSAGE);
-  //   }
-
-  //   return userName;
-
-  // }
 
   private void initializeThreads(){
 

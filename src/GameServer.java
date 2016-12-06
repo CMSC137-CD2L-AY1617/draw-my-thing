@@ -20,16 +20,9 @@ public class GameServer extends Thread {
   private byte[] inBuff;
   private byte[] outBuff;
   private String[] parsed;
-  // private boolean broadcastPermission = false;
 
   private final static Object ipLock = new Object();
   private final static Object serverPortLock = new Object();
-
-  // private final static Object clientPortLock = new Object();
-
-  // private static Vector<Integer> ipVector = new Vector<Integer>();
-
-  // private static Random random = new Random();
 
   public GameServer() throws IOException {
     try{
@@ -40,37 +33,11 @@ public class GameServer extends Thread {
     }
   }
 
-  // public static int getClientPort(){
-  //   synchronized(clientPortLock){
-  //     // synchronized(countLock){
-  //       return generateRandomPort();
-  //     // }
-  //   }
-  // }
-
-  // synchronized private static int generateRandomPort(){
-  //   int randPort = 0;
-  //   while(ipVector.contains(randPort) ||
-  //         randPort<2000){
-
-  //     randPort = random.nextInt(63536)+2000;
-  //   }
-
-  //   ipVector.add(randPort);
-  //   return randPort;
-  // }
-
   synchronized public static int getServerPort(){
     synchronized(serverPortLock){
       return port;
     }
   }
-
-  // synchronized public static String getServerAddress(){
-  //   synchronized(ipLock){
-  //     return ip;
-  //   }
-  // }
 
   public void log(String msg){
     System.out.println("\n[server udp log]: "+msg);
@@ -79,7 +46,6 @@ public class GameServer extends Thread {
   public void run() {
     while(true){
       try{
-
 
         log("Waiting for client on "+socket.getLocalSocketAddress()+" on port " + socket.getLocalPort() + "...");
 
@@ -109,9 +75,6 @@ public class GameServer extends Thread {
               GameServerBroadcaster g = new GameServerBroadcaster(socket, clientAddress, port);
               GameServerBroadcaster.clientList.add(g);
 
-              // log("max "+Server.getMaxPlayers());
-              // log("size "+GameServerBroadcaster.clientList.size());
-
               if(GameServerBroadcaster.clientList.size() < Server.getMaxPlayers()){
                 broadcastState(GameState.WAITING.name());
               }
@@ -128,7 +91,6 @@ public class GameServer extends Thread {
         e.printStackTrace();
         System.exit(-1);
       }
-
     }
   }
 
@@ -151,12 +113,10 @@ public class GameServer extends Thread {
 
   private void broadcastState(String state){
     // broadcast permissions
-    // for(int i=0; i<ChatServerListener.clientNameList.size(); i++){
-      String broadcast = "STATE"+Server.DELIMITER+state;
+    String broadcast = "STATE"+Server.DELIMITER+state;
 
-      outBuff = prepareData(broadcast);
-      sendData(outBuff);
-    // }
+    outBuff = prepareData(broadcast);
+    sendData(outBuff);
   }
 
 
@@ -198,17 +158,5 @@ public class GameServer extends Thread {
     return outBuff;
   }
 
-  // private String setServerAddress() {//throws IOException {
-  //   String serverAddress = "";
-  //   while(serverAddress.isEmpty()){
-  //     serverAddress = JOptionPane.showInputDialog(
-  //                             null,
-  //                             "Enter Server's IP Address:",
-  //                             "Welcome to Draw My Thing",
-  //                             JOptionPane.QUESTION_MESSAGE);
-  //   }
-
-  //   return serverAddress;
-  // }
 }
 

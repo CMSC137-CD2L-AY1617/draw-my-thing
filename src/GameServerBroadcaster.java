@@ -29,15 +29,12 @@ public class GameServerBroadcaster extends Thread {
   private String received;
   private String defaultUpdate;
   private String msg;
-  // private boolean broadcastPermission = false;
 
   private final static Object clientPortLock = new Object();
   public static ArrayList<Integer> portList = new ArrayList<Integer>();
   private static Random random = new Random();
 
   private final static Object ipLock = new Object();
-  // private final static Object serverPortLock = new Object();
-  // private final static Object randGamePortLock = new Object();
 
   public GameServerBroadcaster(DatagramSocket socket, InetAddress address, int port) throws IOException {
     this.port = port;
@@ -52,15 +49,10 @@ public class GameServerBroadcaster extends Thread {
   }
 
   public void run() {
+    // block
     while(ChatServerListener.clientNameList.isEmpty()){
       log("waiting");
     }
-
-    // block
-    // received = receiveData();
-    // while(received.compareTo("START_GAME")!=0){
-    //   log(">> waiting");
-    // }
 
     // game proper
     while(true){
@@ -129,7 +121,7 @@ public class GameServerBroadcaster extends Thread {
       //a UDP datagram is received
       this.socket.receive(packet);
 
-      ColoredGeometry cg = ColoredGeometry.getObject(inBuff);
+      // ColoredGeometry cg = ColoredGeometry.getObject(inBuff);
 
       log("received obj " + received);
 
@@ -147,11 +139,7 @@ public class GameServerBroadcaster extends Thread {
   }
 
   synchronized public static int getGamePort(){
-    // synchronized(randGamePortLock){
-      // synchronized(countLock){
-        return generateRandomPort();
-      // }
-    // }
+    return generateRandomPort();
   }
 
   synchronized private static int generateRandomPort(){
@@ -165,6 +153,5 @@ public class GameServerBroadcaster extends Thread {
     portList.add(randPort);
     return randPort;
   }
-
 
 }

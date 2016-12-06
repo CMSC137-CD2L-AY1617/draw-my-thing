@@ -121,18 +121,11 @@ public class GameClient extends JPanel implements Runnable {
 
   public void initializeGame(){
     try{
-      // port = GameServer.getClientPort();
-
-      // something
-      // ip = clientAddress;
-      // ip = setAddress();
-
       address = InetAddress.getByName(ip);
 
       log("Connecting to " + ip + " on port " + port);
 
       socket = new DatagramSocket(port);
-      // socket = new DatagramSocket(port, address);
 
       log("Just connected to " + this.socket.getLocalSocketAddress());
 
@@ -146,7 +139,6 @@ public class GameClient extends JPanel implements Runnable {
                         "END_UDP_CLIENT";
 
       sendToServer(details);
-      // broadcastPermissions();
 
       initializeThreads();
 
@@ -182,21 +174,6 @@ public class GameClient extends JPanel implements Runnable {
     sendToServer(broadcastUpdate);
   }
 
-  // private void broadcastPermissions(){
-  //   // broadcast permissions
-  //   for(int i=0; i<ChatServerListener.clientNameList.size(); i++){
-  //     String broadcast = "UPDATE_PERMISSION"+Server.DELIMITER+ChatServerListener.clientNameList.get(i)+Server.DELIMITER;
-  //     if(i==0){
-  //       broadcast = broadcast+"DRAW";
-  //     }
-  //     else{
-  //       broadcast = broadcast+"GUESS";
-  //     }
-
-  //     sendToServer(broadcast);
-  //   }
-  // }
-
   private void sendToServer(String msg){
     try{
       byte[] message = new byte[256];
@@ -228,145 +205,102 @@ public class GameClient extends JPanel implements Runnable {
     }
   }
 
-  // private String setAddress() {//throws IOException {
-  //   String ip = "";
-  //   while(ip.isEmpty()){
-  //     ip = JOptionPane.showInputDialog(null,
-  //                                              "Enter IP Address:",
-  //                                              "Welcome to Draw My Thing",
-  //                                              JOptionPane.QUESTION_MESSAGE);
-  //   }
-
-  //   return ip;
-  // }
-
-  // private String setServerAddress() {//throws IOException {
-  //   String serverAddress = "";
-  //   while(serverAddress.isEmpty()){
-  //     serverAddress = JOptionPane.showInputDialog(
-  //                             null,
-  //                             "Enter Server's IP Address:",
-  //                             "Welcome to Draw My Thing",
-  //                             JOptionPane.QUESTION_MESSAGE);
-  //   }
-
-  //   return serverAddress;
-  // }
-
   private void setMessage(String msg){
-
     this.msg = msg;
-
   }
 
   private String getMessage(){
-
     return this.msg;
-
   }
 
   private void updateChatPane(String message){
-
     String contents = this.updateArea.getText();
     contents += message+"\n\n";
     updateArea.setText(contents);
-
   }
 
   private void initializeThreads(){
-
     // For incoming messages
     this.inThread = new Thread(){
       public void run(){
-        // try{
-          while(true){
-            received = receiveData();
+        while(true){
+          received = receiveData();
 
-            updateChatPane("SERVER: "+received);
+          updateChatPane("SERVER: "+received);
 
-            if(received.startsWith("STATE"+Server.DELIMITER)){
-              received = received.replaceFirst("STATE"+Server.DELIMITER, "");
-              game.setGameState(GameState.valueOf(received));
+          if(received.startsWith("STATE"+Server.DELIMITER)){
+            received = received.replaceFirst("STATE"+Server.DELIMITER, "");
+            game.setGameState(GameState.valueOf(received));
+          }
+          else if(received.startsWith("UPDATE_PERMISSION")){
+            parsed = Server.parseData(received);
 
-              // System.exit(-1);
+            String name = parsed[1];
+            String newPermission = parsed[2];
 
-            }
-            else if(received.startsWith("UPDATE_PERMISSION")){
-              parsed = Server.parseData(received);
+            String targetClient = (String)playerDetails.get("alias");
 
-              String name = parsed[1];
-              String newPermission = parsed[2];
+            if(targetClient.compareTo(name)==0 && !setPermission){
+              playerDetails.put("permission", newPermission);
+              if(newPermission.compareTo("DRAW")==0){
+                game.setDrawPermissions();
 
-              String targetClient = (String)playerDetails.get("alias");
+                muted = game.getMutedWordToBroadcast();
 
-              if(targetClient.compareTo(name)==0 && !setPermission){
-                playerDetails.put("permission", newPermission);
-                if(newPermission.compareTo("DRAW")==0){
-                  game.setDrawPermissions();
-
-                  muted = game.getMutedWordToBroadcast();
-
-                  setPermission = true;
-                }
-                else if(newPermission.compareTo("GUESS")==0){
-                  game.setGuessPermissions();
-                  setPermission = true;
-                }
+                setPermission = true;
+              }
+              else if(newPermission.compareTo("GUESS")==0){
+                game.setGuessPermissions();
+                setPermission = true;
               }
             }
-            else if(received.startsWith("UPDATE_TEXT") && game.playerState != PlayerState.DRAWING){
-              String word = Server.parseData(received)[1];
-              game.updateRenderedText(word);
+          }
+          else if(received.startsWith("UPDATE_TEXT") && game.playerState != PlayerState.DRAWING){
+            String word = Server.parseData(received)[1];
+            game.updateRenderedText(word);
+          }
+          else if(received.startsWith("START_DRAW_UPDATE")){
+            parsed = Server.parseData(received);
+
+            // expected
+            // START_DRAW_UPDATE>> p[0]
+            // [action]>>          p[1]
+            // [x coord]>>         p[2]
+            // [y coord]>>         p[3]
+            // [geometry / tool]   p[4]
+            // [color in rgb]      p[5]
+            // END_DRAW_UPDATE     p[6]
+
+            Mimic m = Mimic.valueOf(parsed[1]);
+
+            int x = Integer.parseInt(parsed[2]);
+            int y = Integer.parseInt(parsed[3]);
+            Point p = new Point(x, y);
+
+            Geometry g = Geometry.valueOf(parsed[4]);
+
+            int rgb = Integer.parseInt(parsed[5]);
+            Color c = new Color(rgb);
+
+            game.gamePanel.setDrawTools(g, c);
+
+            if(m == Mimic.PRESS){
+              game.gamePanel.doMousePress(p);
             }
-            else if(received.startsWith("START_DRAW_UPDATE")){
-              parsed = Server.parseData(received);
-
-              // expected
-              // START_DRAW_UPDATE>> p[0]
-              // [action]>>          p[1]
-              // [x coord]>>         p[2]
-              // [y coord]>>         p[3]
-              // [geometry / tool]   p[4]
-              // [color in rgb]      p[5]
-              // END_DRAW_UPDATE     p[6]
-
-              Mimic m = Mimic.valueOf(parsed[1]);
-
-              int x = Integer.parseInt(parsed[2]);
-              int y = Integer.parseInt(parsed[3]);
-              Point p = new Point(x, y);
-
-              Geometry g = Geometry.valueOf(parsed[4]);
-
-              int rgb = Integer.parseInt(parsed[5]);
-              Color c = new Color(rgb);
-
-              game.gamePanel.setDrawTools(g, c);
-
-              if(m == Mimic.PRESS){
-                game.gamePanel.doMousePress(p);
-              }
-              else if(m == Mimic.RELEASE){
-                game.gamePanel.doMouseRelease(p);
-              }
-              else if(m == Mimic.DRAG){
-                game.gamePanel.doMouseDrag(p);
-              }
-
+            else if(m == Mimic.RELEASE){
+              game.gamePanel.doMouseRelease(p);
             }
-
-
-            if(game.playerState == PlayerState.DRAWING){
-              sendToServer("UPDATE_TEXT"+Server.DELIMITER+muted);
+            else if(m == Mimic.DRAG){
+              game.gamePanel.doMouseDrag(p);
             }
-
 
           }
-        // } catch(IOException ioe){
-        //   System.out.println("\nError reading.");
-        // }
-      }
 
+          if(game.playerState == PlayerState.DRAWING){
+            sendToServer("UPDATE_TEXT"+Server.DELIMITER+muted);
+          }
+        }
+      }
     };
 
 
@@ -376,8 +310,6 @@ public class GameClient extends JPanel implements Runnable {
         String message;
         try{
           while(true){
-            // broadcastPermissions();
-
             outBuff = new byte[256];
 
             while(true){

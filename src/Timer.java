@@ -12,20 +12,19 @@ public class Timer implements Runnable {
     this.timePanel = timePanel;
   }
 
-  public void startTimer() {
+  public void startTimer() {      // start the thread up
     running = true;
-    paused = false; // start the thread up
+    paused = false;
     runThread = new Thread(this);
     runThread.start();
   }
 
-  public void pauseTimer() { // just pause it
+  public void pauseTimer() {      // just pause it
     paused = true;
     running = false;
-    //paused=!paused;
   }
 
-  public void stopTimer() { // completely stop the timer
+  public void stopTimer() {       // completely stop the timer
     running = false;
     paused = false;
   }
@@ -63,4 +62,3 @@ public class Timer implements Runnable {
  * [CMSC 22] Bomberman timer
  * originally modified from http://stackoverflow.com/questions/18926839/timer-stopwatch-gui
  */
-

@@ -69,7 +69,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   private JPanel sidePanel = new JPanel();
   protected GamePanel gamePanel = new GamePanel();
-  private Client client = new Client();
+  private Client client;
   private ChatClient chatClient = new ChatClient();
   private GameClient gameClient = new GameClient();
   private TimePanel timePanel = new TimePanel();
@@ -171,11 +171,6 @@ public class DrawMyThing extends JFrame implements MouseListener {
     chatClient.focusTextArea();
 
     mainFrame = SwingUtilities.getWindowAncestor(deck);
-
-    // client = new Client();
-    chatClient.setClientDetails(client);
-    gameClient.setClientDetails(client);
-
   }
 
   private void forceSize(Component c, Dimension d){
@@ -185,13 +180,15 @@ public class DrawMyThing extends JFrame implements MouseListener {
   }
 
   public void startGame(){
-    client.setClientAlias();
+    client = new Client();
+    chatClient.setClientDetails(client);
+    gameClient.setClientDetails(client);
 
+    client.setClientAlias();
     registerAlias(client.getAlias());
 
     chatClient.initializeChat();
     gameClient.initializeGame();
-
 
     gameClient.setGameInstance(this);
     gameClient.setUpClientDetails(this.alias);
@@ -205,19 +202,13 @@ public class DrawMyThing extends JFrame implements MouseListener {
     wordToDraw = gamePanel.renderWordFromCategory("easy");
 
     // show game area
-    // SwingUtilities.invokeLater(new Runnable() {
-    //   public void run() {
     setVisible(true);
     timePanel.displayStartTime(Timeout.EASY);
-    //     }
-    // });
-
 
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         while(gameState == GameState.WAITING){
           System.out.print(".");
-          // System.out.println("... "+gameState);
         }
 
         timePanel.startTime();
@@ -306,7 +297,6 @@ public class DrawMyThing extends JFrame implements MouseListener {
       if( e.getX()>=190 && e.getX()<=300 ){
         if( gameState==GameState.WAITING ){
           frame.setVisible(false);
-          // gameState = GameState.INGAME;
           startGame();
         }
       }
@@ -337,10 +327,6 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   @Override
   public void mouseReleased(MouseEvent e){}
-
-  // public LinkedList<ColoredGeometry> getDrawings(){
-  //   return gamePanel.getDrawings();
-  // }
 
   public static void main(String[] args){
     SwingUtilities.invokeLater(new Runnable() {

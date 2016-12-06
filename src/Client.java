@@ -14,15 +14,13 @@ public class Client{
     gamePort = GameServerBroadcaster.getGamePort();
     serverAddress = setServerAddress();
     clientAddress = setClientAddress();
-    // name = getAlias();
-    // System.out.println(Server.maxPlayers);
   }
 
   public String getAlias(){
     return this.name;
   }
 
-  protected void setClientAlias() {//throws IOException {
+  protected void setClientAlias() {
     String userName = "";
     while(userName.isEmpty()){
       userName = JOptionPane.showInputDialog(null,
@@ -31,12 +29,11 @@ public class Client{
                                              JOptionPane.PLAIN_MESSAGE);
     }
 
-    // return userName;
     this.name = userName;
 
   }
 
-  private String setClientAddress() {//throws IOException {
+  private String setClientAddress() {
     String ip = "";
     while(ip.isEmpty()){
       ip = JOptionPane.showInputDialog(null,
@@ -48,7 +45,7 @@ public class Client{
     return ip;
   }
 
-  private String setServerAddress() {//throws IOException {
+  private String setServerAddress() {
     String serverAddress = "";
     while(serverAddress.isEmpty()){
       serverAddress = JOptionPane.showInputDialog(
