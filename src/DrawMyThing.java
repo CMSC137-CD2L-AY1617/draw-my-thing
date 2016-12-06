@@ -39,6 +39,8 @@ import javax.swing.SwingUtilities;
 
 public class DrawMyThing extends JFrame implements MouseListener {
 
+  private final static long serialVersionUID = 1L;
+
   private static int CHAT_BORDER_TOP = 0;
   private static int CHAT_BORDER_LEFT = 10;
   private static int CHAT_BORDER_BOTTOM = 0;
@@ -103,6 +105,8 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   private void initializeComponents(){
     deck = new JPanel(){
+      private final static long serialVersionUID = 1L;
+
       @Override
       public void paintComponent(Graphics g) {
         super.paintComponent(g);

@@ -12,6 +12,8 @@ import javax.swing.SwingUtilities;
 
 public class GamePanel extends JPanel implements ChangeListener {
 
+  private final static long serialVersionUID = 1L;
+
   private JColorChooser colorChooser;
   private DrawPanel drawPanel = new DrawPanel();
   private TextPanel textPanel = new TextPanel();

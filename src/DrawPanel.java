@@ -32,6 +32,8 @@ import javax.swing.JRadioButton;
 
 public class DrawPanel extends JPanel implements ActionListener {
 
+  private final static long serialVersionUID = 1L;
+
   private Color selectedColor = Color.BLACK;
   private Geometry selectedTool = Geometry.PENCIL;
   private ArrayList<Point> pointList = new ArrayList<Point>();
@@ -169,7 +171,9 @@ public class DrawPanel extends JPanel implements ActionListener {
 
   }
 
-  class DrawSurface extends JComponent {
+  public class DrawSurface extends JComponent {
+    private final static long serialVersionUID = 1L;
+
     boolean isActiveDrawPanelListeners = false;
     LinkedList<ColoredGeometry> all_shapes = new LinkedList<ColoredGeometry>();
     GameClient client;

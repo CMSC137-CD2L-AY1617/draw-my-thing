@@ -10,6 +10,8 @@ import java.awt.FontMetrics;
 
 class ScorePanel extends JPanel {
 
+  private final static long serialVersionUID = 1L;
+
   private String score = "0";
   private String name = "";
 

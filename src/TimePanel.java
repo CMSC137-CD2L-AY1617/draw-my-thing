@@ -6,6 +6,8 @@ import javax.swing.BorderFactory;
 import javax.swing.SwingUtilities;
 
 public class TimePanel extends JPanel{
+  private final static long serialVersionUID = 1L;
+
   private JLabel time = new JLabel();
   private Timer timer;
   private final int BORDER_LEFT = 1;

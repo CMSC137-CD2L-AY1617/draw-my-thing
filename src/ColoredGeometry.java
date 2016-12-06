@@ -8,11 +8,12 @@ import java.awt.Shape;
  * its type
  */
 
-public class ColoredGeometry {
+public class ColoredGeometry implements Serializable {
 
   private Shape shape;
   private Color color;
   private Geometry type;
+  private static final long serialVersionUID = 1L;
 
   ColoredGeometry(Shape s, Color c, Geometry geom){
     shape = s;

@@ -3,10 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Point;
 import java.io.IOException;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import javax.swing.BorderFactory;
-import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -23,6 +20,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;
 
 public class GameClient extends JPanel implements Runnable {
+
+  private final static long serialVersionUID = 1L;
 
   private DrawMyThing game;
   private HashMap<String, Object> playerDetails = new HashMap<String, Object>();

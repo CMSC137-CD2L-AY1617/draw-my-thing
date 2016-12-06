@@ -5,6 +5,8 @@ import javax.swing.JPanel;
 
 class TextPanel extends JPanel {
 
+  private final static long serialVersionUID = 1L;
+
   private String custom_text = "";
 
   TextPanel(){

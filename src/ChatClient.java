@@ -24,6 +24,8 @@ import javax.swing.text.DefaultCaret;
 
 public class ChatClient extends JPanel implements Runnable {
 
+  private final static long serialVersionUID = 1L;
+
   private DataOutputStream out;
   private DataInputStream in;
   private int port;// = 1234;
