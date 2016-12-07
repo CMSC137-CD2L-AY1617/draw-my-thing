@@ -28,8 +28,16 @@ public class TimePanel extends JPanel{
     timer.startTimer();
   }
 
+  public void stopTime(){
+    timer.stopTimer();
+  }
+
   public void displayStartTime(long time){
     update(time);
+  }
+
+  public void setGameInstance(DrawMyThing game){
+    timer.setGameInstance(game);
   }
 
   public void update(long dT){

@@ -66,13 +66,14 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private GameState gameState = GameState.WAITING;
   protected String alias = "";
   protected String wordToDraw = "";
+  protected String winner = "";
 
   private JPanel sidePanel = new JPanel();
   protected GamePanel gamePanel = new GamePanel();
   private Client client;
   private ChatClient chatClient = new ChatClient();
   private GameClient gameClient = new GameClient();
-  private TimePanel timePanel = new TimePanel();
+  protected TimePanel timePanel = new TimePanel();
   protected ScorePanel scorePanel = new ScorePanel();
 
   private Thread chatThread = new Thread(chatClient);
@@ -191,6 +192,8 @@ public class DrawMyThing extends JFrame implements MouseListener {
     gameClient.initializeGame();
 
     gameClient.setGameInstance(this);
+    timePanel.setGameInstance(this);
+
     gameClient.setUpClientDetails(this.alias);
 
     gamePanel.setUpdateInstance(gameClient);

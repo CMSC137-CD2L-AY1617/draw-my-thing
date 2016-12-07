@@ -7,6 +7,7 @@ public class Timer implements Runnable {
   private boolean paused = false;
   private TimePanel timePanel;
   private long summedTime = Timeout.EASY;
+  private DrawMyThing game;
 
   public Timer(TimePanel timePanel) {
     this.timePanel = timePanel;
@@ -29,6 +30,9 @@ public class Timer implements Runnable {
     paused = false;
   }
 
+  public void setGameInstance(DrawMyThing game){
+    this.game = game;
+  }
 
   @Override public void run() {
     long startTime = System.currentTimeMillis(); // keep showing the difference in time until we are either paused or not running anymore
@@ -40,16 +44,12 @@ public class Timer implements Runnable {
       summedTimeCopy= summedTime - (System.currentTimeMillis() - startTime) ;
     }
     else{
-      while(running && !paused) {
+      while(running) {
         timePanel.update(summedTime - (System.currentTimeMillis() - startTime));
 
         if( summedTime - (System.currentTimeMillis() - startTime) < 0 ){
-          // JOptionPane.showMessageDialog(null,"Time's Up!");
-          System.out.println("time's up");
-          run();
-          try{
-            Thread.sleep(1000000);
-          } catch(Exception e){}
+          JOptionPane.showMessageDialog(null,"Time's up!");
+          break;
         }
       }
     }

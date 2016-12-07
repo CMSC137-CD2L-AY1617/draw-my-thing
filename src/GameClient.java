@@ -226,19 +226,36 @@ public class GameClient extends JPanel implements Runnable {
         while(true){
           received = receiveData();
 
-          updateChatPane("SERVER: "+received);
+          // updateChatPane("SERVER: "+received);
 
           if(received.startsWith("STATE"+Server.DELIMITER)){
             received = received.replaceFirst("STATE"+Server.DELIMITER, "");
-            game.setGameState(GameState.valueOf(received));
+
+            GameState state = GameState.valueOf(received);
+
+            game.setGameState(state);
+
+            if(state == GameState.END){
+              game.timePanel.stopTime();
+              // JOptionPane.showMessageDialog(null,game.winner+" won!");
+            }
+
           }
           else if(received.startsWith("GUESS"+Server.DELIMITER)){
 
             if(game.playerState==PlayerState.DRAWING){
               parsed=Server.parseData(received);
-              
+
               if((parsed[1].toLowerCase()).equals(game.wordToDraw)){
                 sendToServer("SCORE"+Server.DELIMITER+parsed[2].toLowerCase()+Server.DELIMITER+Integer.toString(Score.EASY));
+
+                game.winner = parsed[2];
+
+                sendToServer("STATE"+Server.DELIMITER+GameState.END.name());
+
+                game.timePanel.stopTime();
+                JOptionPane.showMessageDialog(null,"You won!");
+
                 //updateChatPane(parsed[2]+" correct");
               }
             }
@@ -248,10 +265,10 @@ public class GameClient extends JPanel implements Runnable {
             updateChatPane(received);
             String name =((String)playerDetails.get("alias")).toLowerCase();
             if(name.compareTo(parsed[1])==0){
-              int curr_score = (int)playerDetails.get("score"); 
+              int curr_score = (int)playerDetails.get("score");
               curr_score+=Integer.parseInt(parsed[2]);
-              playerDetails.put("score",curr_score);         
-              game.scorePanel.updateScore(curr_score); 
+              playerDetails.put("score",curr_score);
+              game.scorePanel.updateScore(curr_score);
             }
           }
           else if(received.startsWith("UPDATE_PERMISSION")){
