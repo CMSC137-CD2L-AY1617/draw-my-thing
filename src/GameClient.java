@@ -232,6 +232,18 @@ public class GameClient extends JPanel implements Runnable {
             received = received.replaceFirst("STATE"+Server.DELIMITER, "");
             game.setGameState(GameState.valueOf(received));
           }
+          else if(received.startsWith("GUESS"+Server.DELIMITER)){
+            //updateChatPane("SERVER: "+received);
+            if(game.playerState==PlayerState.DRAWING){
+              String[] user_guess=Server.parseData(received);
+              
+              if((user_guess[1].toLowerCase()).equals(game.wordToDraw)){
+                updateChatPane("Correct: "+user_guess[2]+":"+user_guess[1]);               
+              }
+              
+            }
+
+          }
           else if(received.startsWith("UPDATE_PERMISSION")){
             parsed = Server.parseData(received);
 
@@ -308,7 +320,6 @@ public class GameClient extends JPanel implements Runnable {
     this.outThread = new Thread(){
       public void run(){
         String message;
-        try{
           while(true){
             outBuff = new byte[256];
 
@@ -323,24 +334,13 @@ public class GameClient extends JPanel implements Runnable {
               }
             }
 
-            message = message.toUpperCase();
-            message = "GUESS"+Server.DELIMITER+message;
-
-            outBuff = message.getBytes();
-
-            // send it
-            packet = new DatagramPacket(outBuff, outBuff.length, address, 4446);
-
-            socket.send(packet);
+            //message = message.toUpperCase();
+            message = "GUESS"+Server.DELIMITER+message+Server.DELIMITER+name;
+            sendToServer(message);
 
             updateChatPane("You guessed "+message);
             log(name + ": "+message);
           }
-
-        } catch(IOException e){
-          e.printStackTrace();
-          System.exit(-1);
-        }
       }
     };
   }

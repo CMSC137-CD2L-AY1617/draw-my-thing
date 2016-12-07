@@ -57,7 +57,7 @@ public class GameServerBroadcaster extends Thread {
     // game proper
     while(true){
       received = receiveData();
-      received = receiveObject();
+      //received = receiveObject();
       outBuff = prepareData(received);
       sendData(outBuff);
     }
