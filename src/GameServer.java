@@ -9,16 +9,16 @@ import javax.swing.JOptionPane;
 
 public class GameServer extends Thread {
 
-  private DatagramSocket socket = null;
+  private static DatagramSocket socket = null;
 
   private InetAddress address;
   private static String ip;
   private static int port = Server.gamePort;
 
-  private DatagramPacket packet;
+  private static DatagramPacket packet;
   private String received;
-  private byte[] inBuff;
-  private byte[] outBuff;
+  private static byte[] inBuff;
+  private static byte[] outBuff;
   private String[] parsed;
 
   private final static Object ipLock = new Object();
@@ -94,7 +94,7 @@ public class GameServer extends Thread {
     }
   }
 
-  private void broadcastPermissions(int loner){
+  public static void broadcastPermissions(int loner){
     // broadcast permissions
     for(int i=0; i<ChatServerListener.clientNameList.size(); i++){
       String broadcast = "UPDATE_PERMISSION"+Server.DELIMITER+ChatServerListener.clientNameList.get(i)+Server.DELIMITER;
@@ -111,7 +111,7 @@ public class GameServer extends Thread {
     }
   }
 
-  private void broadcastState(String state){
+  public static void broadcastState(String state){
     // broadcast permissions
     String broadcast = "STATE"+Server.DELIMITER+state;
 
@@ -139,20 +139,20 @@ public class GameServer extends Thread {
     return received;
   }
 
-  private void sendData(byte[] outBuff){
+  private static void sendData(byte[] outBuff){
     try{
       for(GameServerBroadcaster listener: GameServerBroadcaster.clientList){
         packet = new DatagramPacket(outBuff, outBuff.length, listener.getClientAddress(), listener.getClientPort());
 
-          // send it
-          socket.send(packet);
-        }
+        // send it
+        socket.send(packet);
+      }
     } catch(IOException ioe){
       System.out.println("\nError reading.");
     }
   }
 
-  private byte[] prepareData(String received){
+  private static byte[] prepareData(String received){
     outBuff = new byte[256];
     outBuff = received.getBytes();
     return outBuff;

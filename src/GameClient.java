@@ -230,8 +230,15 @@ public class GameClient extends JPanel implements Runnable {
 
           if(received.startsWith("STATE"+Server.DELIMITER)){
             received = received.replaceFirst("STATE"+Server.DELIMITER, "");
-            game.setGameState(GameState.valueOf(received));
-          }
+
+            GameState state = GameState.valueOf(received);
+
+            game.setGameState(state);
+
+            if(state == GameState.END){
+              GameServer.broadcastPermissions(1);
+            }
+          }       
           else if(received.startsWith("UPDATE_PERMISSION")){
             parsed = Server.parseData(received);
 

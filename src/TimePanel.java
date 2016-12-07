@@ -9,7 +9,7 @@ public class TimePanel extends JPanel{
   private final static long serialVersionUID = 1L;
 
   private JLabel time = new JLabel();
-  private Timer timer;
+  public Timer timer;
   private final int BORDER_LEFT = 1;
   private final int BORDER_RIGHT = 1;
   private final int BORDER_TOP = 1;
@@ -26,6 +26,10 @@ public class TimePanel extends JPanel{
 
   public void startTime(){
     timer.startTimer();
+  }
+
+  public void stopTimer(){
+    timer.stopTimer();
   }
 
   public void displayStartTime(long time){

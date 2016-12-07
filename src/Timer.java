@@ -6,7 +6,9 @@ public class Timer implements Runnable {
   private boolean running = false;
   private boolean paused = false;
   private TimePanel timePanel;
-  private long summedTime = Timeout.EASY;
+  //private long summedTime = Timeout.EASY;
+  private long summedTime = (10000);
+  private GameClient client;
 
   public Timer(TimePanel timePanel) {
     this.timePanel = timePanel;
@@ -27,6 +29,11 @@ public class Timer implements Runnable {
   public void stopTimer() {       // completely stop the timer
     running = false;
     paused = false;
+    summedTime = 0;
+  }
+
+  public void setUpdateInstance(GameClient client){
+   this.client = client;
   }
 
 
@@ -46,7 +53,13 @@ public class Timer implements Runnable {
         if( summedTime - (System.currentTimeMillis() - startTime) < 0 ){
           // JOptionPane.showMessageDialog(null,"Time's Up!");
           System.out.println("time's up");
-          run();
+          //to do: broadcast time's up to use
+          // String signal = "STATE" + Server.DELIMITER + GameState.END.name();
+          GameServer.broadcastState(GameState.END.name());
+          // this.client.sendUpdate(signal);
+          // byte[] arr = GameServerBroadcaster.prepareTime(s);            
+          // GameServerBroadcaster.broadcastTime(arr);
+          //run();
           try{
             Thread.sleep(1000000);
           } catch(Exception e){}

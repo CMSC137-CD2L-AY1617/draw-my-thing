@@ -72,7 +72,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private Client client;
   private ChatClient chatClient = new ChatClient();
   private GameClient gameClient = new GameClient();
-  private TimePanel timePanel = new TimePanel();
+  protected TimePanel timePanel = new TimePanel();
   private ScorePanel scorePanel = new ScorePanel();
 
   private Thread chatThread = new Thread(chatClient);
@@ -193,6 +193,8 @@ public class DrawMyThing extends JFrame implements MouseListener {
     gameClient.setGameInstance(this);
     gameClient.setUpClientDetails(this.alias);
 
+    timePanel.timer.setUpdateInstance(gameClient);
+
     gamePanel.setUpdateInstance(gameClient);
 
     chatThread.start();
@@ -244,6 +246,10 @@ public class DrawMyThing extends JFrame implements MouseListener {
 
   public void setGameState(GameState state){
     this.gameState = state;
+
+    if (state == GameState.END){
+      timePanel.stopTimer();
+    }
   }
 
   public String getMutedWordToBroadcast(){
