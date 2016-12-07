@@ -233,20 +233,26 @@ public class GameClient extends JPanel implements Runnable {
             game.setGameState(GameState.valueOf(received));
           }
           else if(received.startsWith("GUESS"+Server.DELIMITER)){
-            //updateChatPane("SERVER: "+received);
-            if(game.playerState==PlayerState.DRAWING){
-              String[] user_guess=Server.parseData(received);
-              
-              if((user_guess[1].toLowerCase()).equals(game.wordToDraw)){
-                //updateChatPane("Correct: "+user_guess[2]+":"+user_guess[1]);
-                int curr_score = (int)playerDetails.get("score"); 
-                curr_score+=Score.EASY;     
-                playerDetails.put("score",curr_score);         
-                game.scorePanel.updateScore(curr_score);
-              }
-              
-            }
 
+            if(game.playerState==PlayerState.DRAWING){
+              parsed=Server.parseData(received);
+              
+              if((parsed[1].toLowerCase()).equals(game.wordToDraw)){
+                sendToServer("SCORE"+Server.DELIMITER+parsed[2].toLowerCase()+Server.DELIMITER+Integer.toString(Score.EASY));
+                //updateChatPane(parsed[2]+" correct");
+              }
+            }
+          }
+          else if(received.startsWith("SCORE"+Server.DELIMITER)){
+            parsed = Server.parseData(received);
+            updateChatPane(received);
+            String name =((String)playerDetails.get("alias")).toLowerCase();
+            if(name.compareTo(parsed[1])==0){
+              int curr_score = (int)playerDetails.get("score"); 
+              curr_score+=Integer.parseInt(parsed[2]);
+              playerDetails.put("score",curr_score);         
+              game.scorePanel.updateScore(curr_score); 
+            }
           }
           else if(received.startsWith("UPDATE_PERMISSION")){
             parsed = Server.parseData(received);

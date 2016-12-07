@@ -52,8 +52,7 @@ class ScorePanel extends JPanel {
   }
 
   public void updateScore(int score){
-   // this.score = String.valueOf(score);
-    this.score = String.valueOf(99);
+    this.score = String.valueOf(score);
     repaint();
   }
 
