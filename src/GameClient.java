@@ -238,7 +238,11 @@ public class GameClient extends JPanel implements Runnable {
               String[] user_guess=Server.parseData(received);
               
               if((user_guess[1].toLowerCase()).equals(game.wordToDraw)){
-                updateChatPane("Correct: "+user_guess[2]+":"+user_guess[1]);               
+                //updateChatPane("Correct: "+user_guess[2]+":"+user_guess[1]);
+                int curr_score = (int)playerDetails.get("score"); 
+                curr_score+=Score.EASY;     
+                playerDetails.put("score",curr_score);         
+                game.scorePanel.updateScore(curr_score);
               }
               
             }

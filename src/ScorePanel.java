@@ -38,7 +38,7 @@ class ScorePanel extends JPanel {
     // slow if turned on
     g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-    rightEdge = (getWidth()-fontMetrics.stringWidth(score))-(ScoreFont.padding*2);
+    rightEdge = (getWidth()-fontMetrics.stringWidth(score))-(ScoreFont.padding*2)-5;
 
     yValue = Math.round(ScoreFont.size)+(ScoreFont.padding*2);
 
@@ -52,7 +52,8 @@ class ScorePanel extends JPanel {
   }
 
   public void updateScore(int score){
-    this.score = String.valueOf(score);
+   // this.score = String.valueOf(score);
+    this.score = String.valueOf(99);
     repaint();
   }
 

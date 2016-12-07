@@ -73,7 +73,7 @@ public class DrawMyThing extends JFrame implements MouseListener {
   private ChatClient chatClient = new ChatClient();
   private GameClient gameClient = new GameClient();
   private TimePanel timePanel = new TimePanel();
-  private ScorePanel scorePanel = new ScorePanel();
+  protected ScorePanel scorePanel = new ScorePanel();
 
   private Thread chatThread = new Thread(chatClient);
   private Thread gameThread = new Thread(gameClient);
